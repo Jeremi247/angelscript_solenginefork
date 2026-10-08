@@ -27,7 +27,7 @@ Scope: how something SolEngine needs and upstream does not have enters the libra
 
 ## Consequences
 
-- **Where a feature's tests live, and how they are built, is decided with the first feature.** It is on [P0](../todo/P0.md) beside building upstream's suite, since the two share a toolchain.
+- **Where a feature's tests live, and how they are built, is decided with the first feature.** Upstream's suite is built by `check/` ([testing](../testing.md)), the toolchain the two will share.
 - **A feature SolEngine turns on is listed in [SOLENGINE.md](../../SOLENGINE.md)'s release table**, so a release says which of its features the engine uses.
 
 ## See also

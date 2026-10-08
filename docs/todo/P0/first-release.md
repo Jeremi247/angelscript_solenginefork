@@ -5,11 +5,11 @@
 **In SolEngine, with the vendoring**
 - `ThirdParty/AngelScript/README.md`: the provenance row names this tag and `825931ef`, and the upgrade steps name this fork. Upstream now ships `LICENSE.md`, which the README says it does not.
 - `ExpectedVersion` in `Tests/Script/ScriptLibraryTests.cpp` moves to the number the new header declares.
-- `ThirdParty/AngelScript/CMakeLists.txt`: one source file is new since 2.38.0, `as_callfunc_x64_msvc_clang.S`, an assembler file for clang on Windows. SolEngine assembles `as_callfunc_x64_msvc_asm.asm` with `ml64` under clang-cl today ([SolEngine 0076](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0076-vendoring-a-third-party.md)), so whether the new file replaces that under clang-cl is a decision, not a list edit.
+- `ThirdParty/AngelScript/CMakeLists.txt`: one source file is new since 2.38.0, `as_callfunc_x64_msvc_clang.S`, an assembler file for clang on Windows. SolEngine assembles `as_callfunc_x64_msvc_asm.asm` with `ml64` under clang-cl today ([SolEngine 0076](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0076-vendoring-a-third-party.md)), so whether the new file replaces that under clang-cl is a decision, not a list edit. Evidence for keeping `ml64`: upstream's CMakeLists assembles the `.S` only for clang's GNU driver, and the release check passes under clang-cl with the `.asm` ([testing](../../testing.md)).
 - 0109's consequence on the unqualified-call bug says the fix is vendored.
 - The full gate, all six configurations.
 
-**Blocked on** — [building upstream's suite](build-test-feature.md).
+**Blocked on** — nothing. Step 1 of the release check is `check/Check.ps1`, and passes at `825931ef`.
 
 **Read**
 - [0001](../../decisions/0001-the-fork-follows-upstream.md) — the tag's name, and why it is never moved

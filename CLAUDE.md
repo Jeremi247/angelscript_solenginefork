@@ -35,8 +35,12 @@ git checkout sol/main
 git rebase master
 ```
 
-Building and running upstream's suite under SolEngine's toolchain is not set up yet. It is [P0](docs/todo/P0.md).
+Build and run upstream's suite the way SolEngine builds the library, MSVC and clang-cl, Debug and Development ([testing](docs/testing.md)):
+
+```bash
+powershell -ExecutionPolicy Bypass -File check/Check.ps1
+```
 
 ## Where things are
 
-[todo](docs/todo.md) · [decisions](docs/decisions/README.md) · [testing](docs/testing.md) · [what differs from upstream](SOLENGINE.md) · upstream's own manual is `sdk/docs/`
+[todo](docs/todo.md) · [decisions](docs/decisions/README.md) · [testing](docs/testing.md) · [what differs from upstream](SOLENGINE.md) · the release check's build is `check/` · upstream's own manual is `sdk/docs/`
