@@ -24,7 +24,7 @@ Scope: the branches, how upstream's changes come in, and what a release tag is. 
 
 - **`sol/main` is force-pushed after every rebase.** Nothing but a tag is a stable reference.
 - **A commit of ours that upstream absorbs disappears at the next rebase**, as an empty commit git drops. Its row in SOLENGINE.md goes with it.
-- **The first release is `sol-2.39.0-wip.1`**, at upstream `825931ef` with no commits of ours under `sdk/` ([P0](../todo/P0.md)).
+- **The first release is `sol-2.39.0-wip.1`**, at upstream `c9e74722` with no commits of ours under `sdk/` ([P0](../todo/P0.md)).
 
 ## See also
 - [0002-an-engine-feature-is-off-by-default](0002-an-engine-feature-is-off-by-default.md) — what a commit of ours adds

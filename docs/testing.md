@@ -24,7 +24,7 @@ Four runs: MSVC and clang-cl, each Debug and Development, through the Visual Stu
 
 **Development stands for Shipping too.** The two differ only in `/Zi`.
 
-At `825931ef`, all four runs pass 158 tests. Three are skipped by the suite itself: two because the library reports `AS_NO_EXCEPTIONS`, one for a missing glm.
+At `c9e74722`, all four runs pass 158 tests. Three are skipped by the suite itself: two because the library reports `AS_NO_EXCEPTIONS`, one for a missing glm. Under clang-cl a fourth, `WRAP_MFN_PR`, is skipped as it is for clang upstream.
 
 ## What upstream already runs, and what it does not
 
@@ -43,7 +43,7 @@ Step 1 exists for those differences. A green upstream CI says nothing about them
 
 **The allocator is the suite's, not SolEngine's.** The suite installs its own memory functions for the whole run, and `test_compiler.cpp` resets them to the default part way through, so SolEngine's header-carrying allocator cannot be put in their place without editing upstream's tests. The header is covered by step 3, where SolEngine's `Tests/Script/` asserts a released engine returns every byte.
 
-**`AS_NO_COMPILER` is out of reach of step 1.** SolEngine's builds without tools configure the compiler out, and the suite compiles scripts. That configuration is covered by step 3 alone.
+**`AS_NO_COMPILER` is out of reach of step 1.** SolEngine's builds without tools configure the compiler out, and the suite compiles scripts. No gate build covers it either: SolEngine's six all keep tools on ([its testing doc](https://github.com/Jeremi247/SolEngine/blob/main/docs/testing.md)). A release builds a tools-off tree by hand, `-DSOL_WITH_TOOLS=OFF` ([build](https://github.com/Jeremi247/SolEngine/blob/main/docs/build.md)), and runs its tests.
 
 ## See also
 - [0002-an-engine-feature-is-off-by-default](decisions/0002-an-engine-feature-is-off-by-default.md) — why the suite runs with features off

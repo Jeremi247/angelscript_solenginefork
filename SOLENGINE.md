@@ -20,4 +20,4 @@ Every commit on `sol/main` that changes a file under `sdk/`, oldest first, with 
 
 | Tag | Upstream commit | SolEngine features |
 |---|---|---|
-| — | None yet. The first is to be `sol-2.39.0-wip.1` at `825931ef` | — |
+| `sol-2.39.0-wip.1` | `c9e74722` (2026-10-05) | None. No commit of ours changes `sdk/` |
