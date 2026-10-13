@@ -11,7 +11,7 @@ Read the doc that owns what you are changing. It holds the rule; this file does 
 | Start any work | [todo](docs/todo.md), and [P0](docs/todo/P0.md) |
 | Change anything under `sdk/` | [0003](docs/decisions/0003-a-commit-of-ours-keeps-upstreams-shape.md) |
 | Add something SolEngine needs and upstream does not have | [0002](docs/decisions/0002-an-engine-feature-is-off-by-default.md) |
-| Take upstream's changes, or cut a release | [0001](docs/decisions/0001-the-fork-follows-upstream.md), [testing](docs/testing.md) |
+| Take upstream's changes, or cut a release | [0001](docs/decisions/0001-the-fork-follows-upstream.md), [testing](docs/testing.md), [changelog](docs/changelog.md) |
 | Decide something structural | [the register](docs/decisions/README.md) |
 | Write a doc, a record or a todo item | SolEngine's [docs & comments](https://github.com/Jeremi247/SolEngine/blob/main/docs/conventions/docs-and-comments.md) and [todo rules](https://github.com/Jeremi247/SolEngine/blob/main/docs/todo.md#how-these-lists-are-kept), which hold here unchanged |
 
@@ -20,6 +20,7 @@ Read the doc that owns what you are changing. It holds the rule; this file does 
 - **`sdk/` is upstream's code, in upstream's style.** SolEngine's C++ style is for code in `sol::`, and none of this is.
 - **Commit on `sol/main`. `master` only ever mirrors upstream.**
 - **Every commit that changes `sdk/` is listed in [SOLENGINE.md](SOLENGINE.md)**, in the same commit.
+- **Every commit that changes what SolEngine vendors, builds or sees, or what the release check proves, gets a line in the [changelog](docs/changelog.md)'s Unreleased**, in the same commit.
 - **Load narrowly.** Read the row above that fits the task, and nothing more.
 - **A response states the finding, the evidence, and what it costs.** No preamble, and no recap.
 
@@ -43,4 +44,4 @@ powershell -ExecutionPolicy Bypass -File check/Check.ps1
 
 ## Where things are
 
-[todo](docs/todo.md) · [decisions](docs/decisions/README.md) · [testing](docs/testing.md) · [what differs from upstream](SOLENGINE.md) · the release check's build is `check/` · upstream's own manual is `sdk/docs/`
+[todo](docs/todo.md) · [decisions](docs/decisions/README.md) · [testing](docs/testing.md) · [what differs from upstream](SOLENGINE.md) · [changelog](docs/changelog.md) · the release check's build is `check/` · upstream's own manual is `sdk/docs/`
