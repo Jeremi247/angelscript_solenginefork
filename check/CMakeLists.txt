@@ -146,6 +146,29 @@ else()
     target_compile_options(SolAngelScriptFeatures PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W0 /utf-8 /GR- /EHs-c->)
 endif()
 
+# SolEngine's builds without tools configure the compiler out, and turn the same features
+# on. The feature tests compile script and cannot run there, so test_sol_nocompiler only
+# proves the configuration links, and runs what needs no compiler.
+add_library(SolAngelScriptFeaturesNoCompiler STATIC ${AngelScriptSources})
+
+target_include_directories(SolAngelScriptFeaturesNoCompiler SYSTEM PUBLIC "${Sdk}/angelscript/include")
+
+target_compile_definitions(SolAngelScriptFeaturesNoCompiler
+    PRIVATE AS_NO_EXCEPTIONS AS_NO_COMPILER _CRT_SECURE_NO_WARNINGS
+    PUBLIC ${SolFeatures})
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(SolAngelScriptFeaturesNoCompiler PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W0 /utf-8 /MP /GR- /EHs-c->)
+else()
+    target_compile_options(SolAngelScriptFeaturesNoCompiler PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W0 /utf-8 /GR- /EHs-c->)
+endif()
+
+add_executable(test_sol_nocompiler "${CMAKE_CURRENT_SOURCE_DIR}/FeaturesNoCompiler/Main.cpp")
+
+target_link_libraries(test_sol_nocompiler PRIVATE SolAngelScriptFeaturesNoCompiler)
+target_compile_options(test_sol_nocompiler PRIVATE /W4 /WX /utf-8 /permissive- /GR- /EHs-c- /external:W0)
+target_compile_definitions(test_sol_nocompiler PRIVATE _HAS_EXCEPTIONS=0)
+
 # The tests are compiled as SolEngine compiles its own code against the library: C++20,
 # warnings as errors, no RTTI and no exceptions.
 file(GLOB FeatureTestSources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Features/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Features/*.h")

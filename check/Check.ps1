@@ -103,6 +103,15 @@ foreach ($T in $Toolset) {
 
         Write-Host "$Name features $FeatureResult, log: $FeatureLog"
         $Results += [pscustomobject]@{ Run = "$Name features"; Result = $FeatureResult }
+
+        # The features again, with the compiler configured out as SolEngine's builds
+        # without tools have it. That the program links is most of what it proves.
+        $ToolsOffExe = Join-Path $Tree "$C\test_sol_nocompiler.exe"
+        & $ToolsOffExe
+        $ToolsOffResult = if ($LASTEXITCODE -eq 0) { 'passed' } else { "FAILED (exit $LASTEXITCODE)" }
+
+        Write-Host "$Name tools-off $ToolsOffResult"
+        $Results += [pscustomobject]@{ Run = "$Name tools-off"; Result = $ToolsOffResult }
     }
 }
 
