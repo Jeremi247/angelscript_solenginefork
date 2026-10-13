@@ -92,6 +92,15 @@ extern "C"
 	AS_API int asSolSetConstantGlobalsOnly(asIScriptEngine *engine, bool on);
 #endif
 
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+	// No new function. With asEP_ALLOW_UNSAFE_REFERENCES off, a value type may
+	// be declared &inout, by a script or by the application. An argument the
+	// compiler knows outlives the call, such as a local variable or a
+	// parameter, is passed by address. Any other must be a variable followed
+	// by property accesses, and is passed as a copy that is assigned back to
+	// it after the call. A const &inout takes a copy of any expression.
+#endif
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 	// Where a garbage collected object was created: the line executing in the
 	// innermost script function of the active context when the collector was

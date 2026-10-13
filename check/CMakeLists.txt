@@ -128,7 +128,8 @@ set(SolFeatures
     AS_SOL_CYCLE_CREATION_SITE
     AS_SOL_GC_REPORTS_DONE
     AS_SOL_DEEP_CONST
-    AS_SOL_NO_SCRIPT_STATE)
+    AS_SOL_NO_SCRIPT_STATE
+    AS_SOL_SAFE_VALUE_INOUT)
 
 add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
 

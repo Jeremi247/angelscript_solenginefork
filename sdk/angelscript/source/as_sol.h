@@ -84,6 +84,15 @@ struct asSSolNoScriptState
 
 #endif // AS_SOL_NO_SCRIPT_STATE
 
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+
+class asCDataType;
+
+// Whether the type is a value type passed by reference rather than a handle
+bool asSolIsValueType(const asCDataType &dt);
+
+#endif // AS_SOL_SAFE_VALUE_INOUT
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 
 // The line executing in the active context, in the innermost script function

@@ -138,6 +138,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_NO_SCRIPT_STATE
 		"AS_SOL_NO_SCRIPT_STATE "
 #endif
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+		"AS_SOL_SAFE_VALUE_INOUT "
+#endif
 
 	// Target system
 #ifdef AS_WIN

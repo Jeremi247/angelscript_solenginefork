@@ -5911,6 +5911,11 @@ int asCBuilder::RegisterVirtualProperty(asCScriptNode *node, asCScriptCode *file
 					if (!engine->ep.allowUnsafeReferences )
 					{
 						// Verify that the base type support &inout parameter types
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+						// A value type is copied by the compiler where its reference is not known to be safe
+						if (asSolIsValueType(emulatedType)) {}
+						else
+#endif
 						if (!emulatedType.IsObject() || emulatedType.IsObjectHandle() ||
 							!((emulatedType.GetTypeInfo()->flags & asOBJ_NOCOUNT) || (CastToObjectType(emulatedType.GetTypeInfo())->beh.addref && CastToObjectType(emulatedType.GetTypeInfo())->beh.release)))
 							WriteError(TXT_ONLY_OBJECTS_MAY_USE_REF_INOUT, file, node->firstChild);
@@ -6985,6 +6990,11 @@ asCDataType asCBuilder::ModifyDataTypeFromNode(const asCDataType &type, asCScrip
 			!(dt.GetTypeInfo() && (dt.GetTypeInfo()->flags & asOBJ_TEMPLATE_SUBTYPE)) )
 		{
 			// Verify that the base type support &inout parameter types
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+			// A value type is copied by the compiler where its reference is not known to be safe
+			if( asSolIsValueType(dt) ) {}
+			else
+#endif
 			if( !dt.IsObject() || dt.IsObjectHandle() || 
 				!((dt.GetTypeInfo()->flags & asOBJ_NOCOUNT) || (CastToObjectType(dt.GetTypeInfo())->beh.addref && CastToObjectType(dt.GetTypeInfo())->beh.release)) )
 				WriteError(TXT_ONLY_OBJECTS_MAY_USE_REF_INOUT, file, node->firstChild);

@@ -2157,6 +2157,17 @@ int asCCompiler::PrepareArgument(asCDataType *paramType, asCExprContext *ctx, as
 			if( (ctx->type.dataType.IsObject() || ctx->type.dataType.IsFuncdef()) && ctx->type.dataType.GetTypeInfo() != dt.GetTypeInfo() )
 				ImplicitConversion(ctx, dt, node, asIC_IMPLICIT_CONV, true, false);
 
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+			// A value type whose reference is not known to be safe is passed as a copy,
+			// which is assigned back to the argument after the call
+			if( !engine->ep.allowUnsafeReferences && asSolIsValueType(ctx->type.dataType) &&
+				!ctx->type.isVariable && !ctx->type.isRefSafe )
+			{
+				if( SolPrepareValueInoutCopy(ctx, node, param.IsReadOnly()) < 0 )
+					return -1;
+			}
+#endif
+
 			// Only objects that support object handles
 			// can be guaranteed to be safe. Local variables are
 			// already safe, so there is no need to add an extra
@@ -12720,6 +12731,11 @@ void asCCompiler::ProcessDeferredParams(asCExprContext *ctx, bool processOnlyOut
 	for( asUINT n = 0; n < ctx->deferredParams.GetLength(); n++ )
 	{
 		asSDeferredParam outParam = ctx->deferredParams[n];
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+		// A value type copied for &inout is assigned back as an &out argument is
+		if( outParam.argInOutFlags == asTM_INOUTREF && outParam.origExpr )
+			outParam.argInOutFlags = asTM_OUTREF;
+#endif
 		if( !processOnlyOutRef && outParam.argInOutFlags < asTM_OUTREF ) // &in, or not reference
 		{
 			// Just release the variable

@@ -356,6 +356,9 @@ protected:
 	void AfterFunctionCall(int funcId, asCArray<asCExprContext*> &args, asCExprContext *ctx, bool deferAll);
 	void ProcessDeferredParams(asCExprContext *ctx, bool processOnlyOutRef = false);
 	int  PrepareArgument(asCDataType *paramType, asCExprContext *ctx, asCScriptNode *node, bool isFunction = false, int refType = 0, bool isMakingCopy = false);
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+	int  SolPrepareValueInoutCopy(asCExprContext *ctx, asCScriptNode *node, bool isReadOnly);
+#endif
 	int  PrepareArgument2(asCExprContext *ctx, asCExprContext *arg, asCDataType *paramType, bool isFunction = false, int refType = 0, bool isMakingCopy = false);
 	bool IsLValue(asCExprValue &type);
 	int  DoAssignment(asCExprContext *out, asCExprContext *lctx, asCExprContext *rctx, asCScriptNode *lexpr, asCScriptNode *rexpr, eTokenType op, asCScriptNode *opNode);

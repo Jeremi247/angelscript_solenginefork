@@ -50,6 +50,7 @@
 #include "as_context.h"
 #include "as_gc.h"
 #include "as_builder.h"
+#include "as_compiler.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -288,6 +289,80 @@ AS_API int asSolSetConstantGlobalsOnly(asIScriptEngine *engine, bool on)
 }
 
 #endif // AS_SOL_NO_SCRIPT_STATE
+
+#ifdef AS_SOL_SAFE_VALUE_INOUT
+
+bool asSolIsValueType(const asCDataType &dt)
+{
+	return dt.IsObject() && !dt.IsObjectHandle() && dt.GetTypeInfo() && (dt.GetTypeInfo()->flags & asOBJ_VALUE);
+}
+
+#ifndef AS_NO_COMPILER
+
+// Whether the expression is a variable followed by property accesses only, which
+// has no side effects and can be evaluated a second time to assign to it
+static bool asSolIsPlainLValue(asCScriptNode *node)
+{
+	while( node && (node->nodeType == snAssignment || node->nodeType == snCondition || node->nodeType == snExpression) )
+	{
+		if( node->firstChild == 0 || node->firstChild != node->lastChild )
+			return false;
+		node = node->firstChild;
+	}
+
+	if( node == 0 || node->nodeType != snExprTerm )
+		return false;
+
+	asCScriptNode *n = node->firstChild;
+	if( n == 0 || n->nodeType != snExprValue || n->firstChild == 0 || n->firstChild != n->lastChild || n->firstChild->nodeType != snVariableAccess )
+		return false;
+
+	for( n = n->next; n; n = n->next )
+		if( n->nodeType != snExprPostOp || n->tokenType != ttDot || n->firstChild == 0 || n->firstChild->nodeType != snIdentifier )
+			return false;
+
+	return true;
+}
+
+int asCCompiler::SolPrepareValueInoutCopy(asCExprContext *ctx, asCScriptNode *node, bool isReadOnly)
+{
+	// A const reference is not written to, so the copy needs no assignment back
+	if( isReadOnly )
+	{
+		PrepareTemporaryVariable(node, ctx, false, true);
+		return 0;
+	}
+
+	// The node is where the expression starts, so find the whole argument
+	asCScriptNode *arg = node;
+	while( arg && arg->parent && arg->parent->nodeType != snArgList && arg->parent->nodeType != snNamedArgument )
+		arg = arg->parent;
+
+	if( arg == 0 || arg->parent == 0 || !asSolIsPlainLValue(arg) || ctx->type.isTemporary )
+	{
+		Error("A value type passed to '&inout' must be a local variable, a parameter or a property", node);
+		return -1;
+	}
+
+	// Compile the argument a second time, to be assigned to after the call
+	asCExprContext *assignBack = asNEW(asCExprContext)(engine);
+	if( assignBack == 0 )
+		return -1;
+	assignBack->exprNode = arg;
+	if( CompileAssignment(arg, assignBack) < 0 )
+	{
+		asDELETE(assignBack, asCExprContext);
+		return -1;
+	}
+
+	PrepareTemporaryVariable(node, ctx, false, true);
+	ctx->origExpr = assignBack;
+	return 0;
+}
+
+#endif // AS_NO_COMPILER
+
+#endif // AS_SOL_SAFE_VALUE_INOUT
 
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 
