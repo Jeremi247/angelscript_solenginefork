@@ -122,6 +122,11 @@ AS_API const char * asGetLibraryOptions()
 		"AS_BIG_ENDIAN "
 #endif
 
+	// Features of the fork maintained for SolEngine
+#ifdef AS_SOL_DECLARATION_POSITIONS
+		"AS_SOL_DECLARATION_POSITIONS "
+#endif
+
 	// Target system
 #ifdef AS_WIN
 		"AS_WIN "

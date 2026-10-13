@@ -2107,6 +2107,10 @@ int asCBuilder::RegisterFuncDef(asCScriptNode *node, asCScriptCode *file, asSNam
 	fd->node   = node;
 	fd->script = file;
 	fd->idx    = module->AddFuncDef(name, ns, parent);
+#ifdef AS_SOL_DECLARATION_POSITIONS
+	if( fd->idx >= 0 )
+		asSolSetDeclaredAt(module->m_funcDefs[fd->idx]->scriptSectionIdx, module->m_funcDefs[fd->idx]->declaredAt, file, n);
+#endif
 
 	funcDefs.PushLast(fd);
 
@@ -2548,6 +2552,9 @@ int asCBuilder::RegisterClass(asCScriptNode *node, asCScriptCode *file, asSNameS
 		st->name = name;
 		st->nameSpace = ns;
 		st->module = module;
+#ifdef AS_SOL_DECLARATION_POSITIONS
+		asSolSetDeclaredAt(st->scriptSectionIdx, st->declaredAt, file, n);
+#endif
 		module->AddClassType(st);
 		if (isShared)
 		{
@@ -2701,6 +2708,9 @@ int asCBuilder::RegisterInterface(asCScriptNode *node, asCScriptCode *file, asSN
 	st->name = name;
 	st->nameSpace = ns;
 	st->module = module;
+#ifdef AS_SOL_DECLARATION_POSITIONS
+	asSolSetDeclaredAt(st->scriptSectionIdx, st->declaredAt, file, n);
+#endif
 	module->AddClassType(st);
 	if( isShared )
 	{
@@ -2893,6 +2903,10 @@ void asCBuilder::CompileGlobalVariables()
 				// Determine order of variable initializations
 				if( gvar->property && !gvar->isEnumValue )
 					initOrder.Put(gvar->property);
+#ifdef AS_SOL_DECLARATION_POSITIONS
+				if( gvar->property && !gvar->isEnumValue )
+					asSolSetDeclaredAt(gvar->property->solDeclaredAt, gvar->script, gvar->declaredAtNode);
+#endif
 
 				// Does the function contain more than just a SUSPEND followed by a RET instruction?
 				if( initFunc && initFunc->scriptData->byteCode.GetLength() > 2 )
@@ -3535,6 +3549,10 @@ void asCBuilder::CompileClasses(asUINT numTempl)
 
 				// The properties must maintain the same offset
 				asASSERT(prop && prop->byteOffset == baseType->properties[p]->byteOffset); UNUSED_VAR(prop);
+#ifdef AS_SOL_DECLARATION_POSITIONS
+				if( prop )
+					prop->solDeclaredAt = baseType->properties[p]->solDeclaredAt;
+#endif
 			}
 
 			// Copy methods from base class to derived class
@@ -4546,7 +4564,14 @@ asCObjectProperty *asCBuilder::AddPropertyToClass(sClassDeclaration *decl, const
 	}
 
 	// Add the property to the object type
+#ifdef AS_SOL_DECLARATION_POSITIONS
+	asCObjectProperty *prop = CastToObjectType(decl->typeInfo)->AddPropertyToClass(name, dt, isPrivate, isProtected, isInherited);
+	if( prop && node )
+		asSolSetDeclaredAt(prop->solDeclaredAt, file, node);
+	return prop;
+#else
 	return CastToObjectType(decl->typeInfo)->AddPropertyToClass(name, dt, isPrivate, isProtected, isInherited);
+#endif
 }
 
 bool asCBuilder::DoesMethodExist(asCObjectType *objType, int methodId, asUINT *methodIndex)
@@ -4790,6 +4815,9 @@ int asCBuilder::RegisterEnum(asCScriptNode *node, asCScriptCode *file, asSNameSp
 			st->nameSpace = ns;
 			st->module    = module;
 			st->enumType  = type;
+#ifdef AS_SOL_DECLARATION_POSITIONS
+			asSolSetDeclaredAt(st->scriptSectionIdx, st->declaredAt, file, tmp->firstChild);
+#endif
 		}
 		module->AddEnumType(st);
 
@@ -4956,6 +4984,9 @@ int asCBuilder::RegisterTypedef(asCScriptNode *node, asCScriptCode *file, asSNam
 		st->nameSpace       = ns;
 		st->aliasForType    = dataType;
 		st->module          = module;
+#ifdef AS_SOL_DECLARATION_POSITIONS
+		asSolSetDeclaredAt(st->scriptSectionIdx, st->declaredAt, file, tmp);
+#endif
 
 		module->AddTypeDef(st);
 

@@ -10,11 +10,11 @@ This is an altered version of the AngelCode Scripting Library, marked as such as
 
 ## Commits that change `sdk/`
 
-Every commit on `sol/main` that changes a file under `sdk/`, oldest first, with the record that argues it. Commits touching only this file, `CLAUDE.md` or `docs/` are not listed.
+Every commit on `sol/main` that changes a file under `sdk/`, oldest first, named by its subject, with the record that argues it. Commits touching only this file, `CLAUDE.md`, `check/` or `docs/` are not listed.
 
 | Commit | Change | Record |
 |---|---|---|
-| — | None yet. `sdk/` is upstream's | — |
+| A declaration reports where it was made | `AS_SOL_DECLARATION_POSITIONS`. Adds `angelscript_sol.h`, `as_sol.h` and `as_sol.cpp`, which every later feature uses | [0004](docs/decisions/0004-a-feature-is-tested-beside-upstreams-suite.md), [0005](docs/decisions/0005-a-declaration-reports-where-it-was-made.md) |
 
 ## Releases
 

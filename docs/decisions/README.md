@@ -7,6 +7,8 @@ Numbered on their own. A SolEngine record is named *SolEngine 0110* and linked b
 - [0001 — The fork follows upstream](0001-the-fork-follows-upstream.md) — `master` mirrors upstream and is never committed to; `sol/main` is `master` plus our commits, rebased rather than merged; a release is a tag `sol-<upstream version>-<n>` on `sol/main`, never moved, and is the only stable reference
 - [0002 — An engine feature is off by default](0002-an-engine-feature-is-off-by-default.md) — a feature is behind `AS_SOL_<FEATURE>`, reported by `asGetLibraryOptions()`, turned on by SolEngine's build, and tested by its own suite; upstream's suite runs with every feature off; a fix to upstream's behaviour is not gated
 - [0003 — A commit of ours keeps upstream's shape](0003-a-commit-of-ours-keeps-upstreams-shape.md) — `sdk/` is written in upstream's style; a new file over an edit; nothing renamed or reformatted for its own sake; upstream's root files untouched; one change per commit, listed in `SOLENGINE.md`
+- [0004 — A feature is tested beside upstream's suite](0004-a-feature-is-tested-beside-upstreams-suite.md) — a feature's tests are a file in `check/Features/`, run against a second build with every feature on, compiled as SolEngine compiles its code; its interface is `angelscript_sol.h` and its code `as_sol.cpp`; a feature is a `PUBLIC` definition
+- [0005 — A declaration reports where it was made](0005-a-declaration-reports-where-it-was-made.md) — `AS_SOL_DECLARATION_POSITIONS`: script types, properties and globals report the section, row and column of their name; source only, `asNOT_SUPPORTED` otherwise
 
 ## See also
 - [CLAUDE.md](../../CLAUDE.md) — where each record is read

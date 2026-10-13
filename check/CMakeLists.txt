@@ -61,6 +61,7 @@ set(AngelScriptSources
     ${Sdk}/angelscript/source/as_scriptfunction.cpp
     ${Sdk}/angelscript/source/as_scriptnode.cpp
     ${Sdk}/angelscript/source/as_scriptobject.cpp
+    ${Sdk}/angelscript/source/as_sol.cpp
     ${Sdk}/angelscript/source/as_string.cpp
     ${Sdk}/angelscript/source/as_string_util.cpp
     ${Sdk}/angelscript/source/as_thread.cpp
@@ -68,7 +69,8 @@ set(AngelScriptSources
     ${Sdk}/angelscript/source/as_typeinfo.cpp
     ${Sdk}/angelscript/source/as_variablescope.cpp
     ${Sdk}/angelscript/source/as_callfunc_x64_msvc_asm.asm
-    ${Sdk}/angelscript/include/angelscript.h)
+    ${Sdk}/angelscript/include/angelscript.h
+    ${Sdk}/angelscript/include/angelscript_sol.h)
 
 add_library(SolAngelScript STATIC ${AngelScriptSources})
 
@@ -115,3 +117,35 @@ target_link_libraries(test_feature PRIVATE SolAngelScript)
 set_target_properties(test_feature PROPERTIES CXX_STANDARD 11)
 target_compile_options(test_feature PRIVATE /EHsc /W0)
 target_compile_definitions(test_feature PRIVATE _CRT_SECURE_NO_WARNINGS)
+
+# --- The fork's features --------------------------------------------------------------
+# Step 2 of the release check: the same library again, with every AS_SOL_ feature on,
+# and the features' own tests against it
+# (docs/decisions/0004-a-feature-is-tested-beside-upstreams-suite.md). PUBLIC, because
+# angelscript_sol.h declares a feature only where its definition is set.
+set(SolFeatures
+    AS_SOL_DECLARATION_POSITIONS)
+
+add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
+
+target_include_directories(SolAngelScriptFeatures SYSTEM PUBLIC "${Sdk}/angelscript/include")
+
+target_compile_definitions(SolAngelScriptFeatures
+    PRIVATE AS_NO_EXCEPTIONS _CRT_SECURE_NO_WARNINGS
+    PUBLIC ${SolFeatures})
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    target_compile_options(SolAngelScriptFeatures PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W0 /utf-8 /MP /GR- /EHs-c->)
+else()
+    target_compile_options(SolAngelScriptFeatures PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/W0 /utf-8 /GR- /EHs-c->)
+endif()
+
+# The tests are compiled as SolEngine compiles its own code against the library: C++20,
+# warnings as errors, no RTTI and no exceptions.
+file(GLOB FeatureTestSources CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/Features/*.cpp" "${CMAKE_CURRENT_SOURCE_DIR}/Features/*.h")
+
+add_executable(test_sol_features ${FeatureTestSources})
+
+target_link_libraries(test_sol_features PRIVATE SolAngelScriptFeatures)
+target_compile_options(test_sol_features PRIVATE /W4 /WX /utf-8 /permissive- /GR- /EHs-c- /external:W0)
+target_compile_definitions(test_sol_features PRIVATE _HAS_EXCEPTIONS=0 _CRT_SECURE_NO_WARNINGS)

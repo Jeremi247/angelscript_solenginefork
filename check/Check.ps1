@@ -1,11 +1,13 @@
 <#
 .SYNOPSIS
-    Builds and runs upstream's test_feature against the library as SolEngine builds it.
+    Builds and runs upstream's test_feature against the library as SolEngine builds it,
+    then the fork's feature tests against the library with every feature on.
 
 .DESCRIPTION
-    Step 1 of the release check in docs/testing.md. MSVC and clang-cl, Debug and
+    Steps 1 and 2 of the release check in docs/testing.md. MSVC and clang-cl, Debug and
     Development, through the Visual Studio 2022 generator as SolEngine's presets use it.
-    Each run's output is kept in check/Build/<toolset>-<configuration>.log.
+    Each run's output is kept in check/Build/<toolset>-<configuration>.log, and the
+    feature tests' in check/Build/<toolset>-<configuration>-features.log.
 
     A run passes when the suite exits 0 and the library reports AS_NO_EXCEPTIONS: a
     definition that stopped reaching the library would otherwise pass silently, with the
@@ -91,6 +93,16 @@ foreach ($T in $Toolset) {
 
         Write-Host "$Name $Result, log: $Log"
         $Results += [pscustomobject]@{ Run = $Name; Result = $Result }
+
+        # Step 2: the features' own tests, against the library with every feature on.
+        # Each test asserts that asGetLibraryOptions() reports the feature it tests.
+        $FeatureExe = Join-Path $Tree "$C\test_sol_features.exe"
+        $FeatureLog = Join-Path $Build "$Name-features.log"
+        cmd /c "`"$FeatureExe`" > `"$FeatureLog`" 2>&1"
+        $FeatureResult = if ($LASTEXITCODE -eq 0) { 'passed' } else { "FAILED (exit $LASTEXITCODE)" }
+
+        Write-Host "$Name features $FeatureResult, log: $FeatureLog"
+        $Results += [pscustomobject]@{ Run = "$Name features"; Result = $FeatureResult }
     }
 }
 

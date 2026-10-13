@@ -5,20 +5,20 @@ Scope: what a release of this fork passes, and what each run proves. When a rele
 ## The release check, in order
 
 1. **Upstream's suite, every feature off.** `sdk/tests/test_feature`, built the way SolEngine builds the library, by `check/Check.ps1`. Proves the library still does what upstream's does, under our compilers and flags ([0002](decisions/0002-an-engine-feature-is-off-by-default.md)).
-2. **Each feature's own tests, with it on.** Proves the feature does what its record says. There are no features yet, so this step is empty.
+2. **Each feature's own tests, with every feature on.** `test_sol_features`, from `check/Features/`, built and run by the same script. Proves each feature does what its record says ([0004](decisions/0004-a-feature-is-tested-beside-upstreams-suite.md)).
 3. **SolEngine's full gate**, all six configurations, against the vendored tree. Proves the engine still builds and passes with this release. It is run in SolEngine, by [its testing doc](https://github.com/Jeremi247/SolEngine/blob/main/docs/testing.md).
 
 A release is tagged only when all three pass.
 
-## Step 1
+## Steps 1 and 2
 
 ```bash
 powershell -ExecutionPolicy Bypass -File check/Check.ps1
 ```
 
-Four runs: MSVC and clang-cl, each Debug and Development, through the Visual Studio 2022 generator as SolEngine's presets use it. `-Toolset` and `-Configuration` narrow it. Each run's output is `check/Build/<toolset>-<configuration>.log`, and the script exits non-zero if any run failed. The summary names the commit tested, and says whether `sdk/` had uncommitted changes.
+Four runs: MSVC and clang-cl, each Debug and Development, through the Visual Studio 2022 generator as SolEngine's presets use it. `-Toolset` and `-Configuration` narrow it. Each run builds and runs both steps. The suite's output is `check/Build/<toolset>-<configuration>.log`, the feature tests' is `<toolset>-<configuration>-features.log`, and the script exits non-zero if any run failed. The summary names the commit tested, and says whether `sdk/` had uncommitted changes.
 
-**A run passes when the suite exits 0 and the library reports `AS_NO_EXCEPTIONS`.** The second half is [SolEngine 0076](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0076-vendoring-a-third-party.md)'s rule that a definition which stops firing has to be visible: without it, the tests that skip themselves under that definition would come back on, and the run would still pass.
+**The suite passes when it exits 0 and the library reports `AS_NO_EXCEPTIONS`.** The feature tests pass when they exit 0, and each asserts that the library reports the feature it tests. The second half is [SolEngine 0076](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0076-vendoring-a-third-party.md)'s rule that a definition which stops firing has to be visible: without it, the tests that skip themselves under that definition would come back on, and the run would still pass.
 
 **The library half is SolEngine's, the suite half is upstream's.** `check/CMakeLists.txt` compiles the library from the source list, definitions and `SolThirdPartyFlags` in SolEngine's `ThirdParty/AngelScript/CMakeLists.txt`, at C++20 and with SolEngine's Debug and Development flags. That list is kept in step with SolEngine's by hand. The suite's sources are read out of upstream's own `test_feature` CMakeLists, so a test upstream adds needs no edit here. The suite and the add-ons are compiled with RTTI and exceptions on, as upstream compiles them: they are not shipped, and clang-cl refuses their `try` and `dynamic_cast` without.
 

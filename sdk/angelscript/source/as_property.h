@@ -45,6 +45,7 @@
 #include "as_atomic.h"
 #include "as_scriptfunction.h"
 #include "as_symboltable.h"
+#include "as_sol.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -64,6 +65,9 @@ public:
 	bool        isPrivate;
 	bool        isProtected;
 	bool        isInherited;
+#ifdef AS_SOL_DECLARATION_POSITIONS
+	asSSolDeclaredAt solDeclaredAt;
+#endif
 };
 
 class asCGlobalProperty
@@ -100,6 +104,10 @@ public:
 	asCScriptFunction *initFunc;
 
 	asDWORD accessMask;
+
+#ifdef AS_SOL_DECLARATION_POSITIONS
+	asSSolDeclaredAt solDeclaredAt;
+#endif
 
 	// The global property structure is reference counted, so that the
 	// engine can keep track of how many references to the property there are.
