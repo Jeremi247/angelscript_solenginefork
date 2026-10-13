@@ -124,7 +124,8 @@ target_compile_definitions(test_feature PRIVATE _CRT_SECURE_NO_WARNINGS)
 # (docs/decisions/0004-a-feature-is-tested-beside-upstreams-suite.md). PUBLIC, because
 # angelscript_sol.h declares a feature only where its definition is set.
 set(SolFeatures
-    AS_SOL_DECLARATION_POSITIONS)
+    AS_SOL_DECLARATION_POSITIONS
+    AS_SOL_CYCLE_CREATION_SITE)
 
 add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
 

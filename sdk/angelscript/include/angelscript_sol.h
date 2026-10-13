@@ -60,6 +60,15 @@ extern "C"
 	AS_API int asSolGetPropertyDeclaredAt(const asITypeInfo *type, asUINT index, const char **scriptSection, int *row, int *col);
 	AS_API int asSolGetGlobalVarDeclaredAt(const asIScriptModule *module, asUINT index, const char **scriptSection, int *row, int *col);
 #endif
+
+#ifdef AS_SOL_CYCLE_CREATION_SITE
+	// Where a garbage collected object was created: the line executing in the
+	// innermost script function of the active context when the collector was
+	// told of the object. An object created with no script executing returns
+	// asNOT_SUPPORTED, and one the collector does not hold asINVALID_ARG. Meant
+	// for the circular reference callback, which is handed the object.
+	AS_API int asSolGetObjectCreatedAt(asIScriptEngine *engine, void *obj, const char **scriptSection, int *row, int *col);
+#endif
 }
 #endif // ANGELSCRIPT_DLL_MANUAL_IMPORT
 

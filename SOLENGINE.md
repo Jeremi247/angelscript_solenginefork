@@ -15,6 +15,7 @@ Every commit on `sol/main` that changes a file under `sdk/`, oldest first, named
 | Commit | Change | Record |
 |---|---|---|
 | A declaration reports where it was made | `AS_SOL_DECLARATION_POSITIONS`. Adds `angelscript_sol.h`, `as_sol.h` and `as_sol.cpp`, which every later feature uses | [0004](docs/decisions/0004-a-feature-is-tested-beside-upstreams-suite.md), [0005](docs/decisions/0005-a-declaration-reports-where-it-was-made.md) |
+| A collected object says where it was created | `AS_SOL_CYCLE_CREATION_SITE` | [0006](docs/decisions/0006-a-collected-object-says-where-it-was-created.md) |
 
 ## Releases
 

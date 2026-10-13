@@ -64,6 +64,11 @@ public:
 
 	int    ReportAndReleaseUndestroyedObjects();
 
+#ifdef AS_SOL_CYCLE_CREATION_SITE
+	// Where the object was created, encoded as asCScriptFunction's declaredAt
+	int    SolGetCreatedAt(void *obj, int *sectionIdx, int *createdAt);
+#endif
+
 	asCScriptEngine *engine;
 
 	// Callback for when circular reference are detected
@@ -71,7 +76,11 @@ public:
 	void *              circularRefDetectCallbackParam;
 
 protected:
+#ifdef AS_SOL_CYCLE_CREATION_SITE
+	struct asSObjTypePair {void *obj; asCObjectType *type; asUINT seqNbr; int solCreatedSectionIdx; int solCreatedAt;};
+#else
 	struct asSObjTypePair {void *obj; asCObjectType *type; asUINT seqNbr;};
+#endif
 	struct asSIntTypePair {int i; asCObjectType *type;};
 	typedef asSMapNode<void*, asSIntTypePair> asSMapNode_t;
 

@@ -47,6 +47,8 @@
 #include "as_property.h"
 #include "as_scriptcode.h"
 #include "as_scriptnode.h"
+#include "as_context.h"
+#include "as_gc.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -132,5 +134,97 @@ AS_API int asSolGetGlobalVarDeclaredAt(const asIScriptModule *module, asUINT ind
 }
 
 #endif // AS_SOL_DECLARATION_POSITIONS
+
+#ifdef AS_SOL_CYCLE_CREATION_SITE
+
+void asSolGetScriptPosition(int &sectionIdx, int &position)
+{
+	sectionIdx = -1;
+	position   = 0;
+
+	asCContext *ctx = reinterpret_cast<asCContext*>(asGetActiveContext());
+	if( ctx == 0 )
+		return;
+
+	asUINT stackSize = ctx->GetCallstackSize();
+	for( asUINT level = 0; level < stackSize; level++ )
+	{
+		asCScriptFunction *func;
+		asDWORD *bytePos;
+		if( level == 0 )
+		{
+			func    = ctx->m_currentFunction;
+			bytePos = ctx->m_regs.programPointer;
+		}
+		else
+		{
+			// The frame holds the position after the call, so step back into it
+			asPWORD *s = ctx->m_callStack.AddressOf() + (stackSize-level-1)*CALLSTACK_FRAME_SIZE;
+			func    = (asCScriptFunction*)s[1];
+			bytePos = (asDWORD*)s[2] - 1;
+		}
+
+		if( func == 0 || func->scriptData == 0 || func->scriptData->lineNumbers.GetLength() == 0 || bytePos == 0 )
+			continue;
+
+		int idx;
+		int line = func->GetLineNumber(int(bytePos - func->scriptData->byteCode.AddressOf()), &idx);
+		if( (line & 0xFFFFF) == 0 )
+			continue;
+
+		sectionIdx = idx;
+		position   = line;
+		return;
+	}
+}
+
+int asCGarbageCollector::SolGetCreatedAt(void *obj, int *sectionIdx, int *createdAt)
+{
+	int r = asINVALID_ARG;
+
+	ENTERCRITICALSECTION(gcCritical);
+	for( asUINT n = 0; n < gcNewObjects.GetLength() + gcOldObjects.GetLength(); n++ )
+	{
+		const asSObjTypePair &o = n < gcNewObjects.GetLength() ? gcNewObjects[n] : gcOldObjects[n - gcNewObjects.GetLength()];
+		if( o.obj != obj )
+			continue;
+
+		*sectionIdx = o.solCreatedSectionIdx;
+		*createdAt  = o.solCreatedAt;
+		r = o.solCreatedSectionIdx >= 0 ? asSUCCESS : asNOT_SUPPORTED;
+		break;
+	}
+	LEAVECRITICALSECTION(gcCritical);
+
+	return r;
+}
+
+extern "C"
+{
+
+AS_API int asSolGetObjectCreatedAt(asIScriptEngine *engine, void *obj, const char **scriptSection, int *row, int *col)
+{
+	if( scriptSection ) *scriptSection = 0;
+	if( row ) *row = 0;
+	if( col ) *col = 0;
+
+	asCScriptEngine *e = reinterpret_cast<asCScriptEngine*>(engine);
+	if( e == 0 || obj == 0 )
+		return asINVALID_ARG;
+
+	int sectionIdx = -1, createdAt = 0;
+	int r = e->gc.SolGetCreatedAt(obj, &sectionIdx, &createdAt);
+	if( r != asSUCCESS )
+		return r;
+
+	if( scriptSection ) *scriptSection = e->scriptSectionNames[sectionIdx]->AddressOf();
+	if( row ) *row = createdAt & 0xFFFFF;
+	if( col ) *col = (createdAt >> 20) & 0xFFF;
+	return asSUCCESS;
+}
+
+}
+
+#endif // AS_SOL_CYCLE_CREATION_SITE
 
 END_AS_NAMESPACE

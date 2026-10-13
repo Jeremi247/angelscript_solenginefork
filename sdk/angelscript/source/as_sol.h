@@ -66,6 +66,15 @@ void asSolSetDeclaredAt(asSSolDeclaredAt &out, asCScriptCode *file, asCScriptNod
 
 #endif // AS_SOL_DECLARATION_POSITIONS
 
+#ifdef AS_SOL_CYCLE_CREATION_SITE
+
+// The line executing in the active context, in the innermost script function
+// that has line numbers, encoded as asCScriptFunction's declaredAt. Without
+// an active context the section index is -1.
+void asSolGetScriptPosition(int &sectionIdx, int &position);
+
+#endif // AS_SOL_CYCLE_CREATION_SITE
+
 END_AS_NAMESPACE
 
 #endif

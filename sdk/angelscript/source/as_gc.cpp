@@ -42,6 +42,7 @@
 #include "as_scriptengine.h"
 #include "as_scriptobject.h"
 #include "as_texts.h"
+#include "as_sol.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -85,6 +86,9 @@ int asCGarbageCollector::AddScriptObjectToGC(void *obj, asCObjectType *objType)
 
 	engine->CallObjectMethod(obj, objType->beh.addref);
 	asSObjTypePair ot = {obj, objType, 0};
+#ifdef AS_SOL_CYCLE_CREATION_SITE
+	asSolGetScriptPosition(ot.solCreatedSectionIdx, ot.solCreatedAt);
+#endif
 
 	// Invoke the garbage collector to destroy a little garbage as new comes in
 	// This will maintain the number of objects in the GC at a maintainable level without
