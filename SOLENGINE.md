@@ -28,4 +28,5 @@ What each release changed, and what SolEngine does to take it, is the [changelog
 
 | Tag | Upstream commit |
 |---|---|
+| `sol-2.39.0-wip.2` | `c9e74722` (2026-10-05) |
 | `sol-2.39.0-wip.1` | `c9e74722` (2026-10-05) |

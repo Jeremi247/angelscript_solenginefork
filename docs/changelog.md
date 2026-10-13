@@ -6,7 +6,11 @@ Scope: what changes for SolEngine between releases of this fork, and what it doe
 
 ## Unreleased
 
-Upstream unchanged since `sol-2.39.0-wip.1`, at `c9e74722`.
+Nothing yet.
+
+## sol-2.39.0-wip.2 — 2026-10-13
+
+At upstream `c9e74722` (2026-10-05), unchanged since `sol-2.39.0-wip.1`. The first release with commits of ours under `sdk/`. SolEngine vendors it with all seven features on ([SolEngine 0131](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0131-the-forks-features-are-built-in.md)).
 
 **Vendoring this tree with no `AS_SOL_*` defined builds and behaves as upstream's.** Every feature below is off by default ([0002](decisions/0002-an-engine-feature-is-off-by-default.md)), and the release check runs upstream's suite with them off.
 
