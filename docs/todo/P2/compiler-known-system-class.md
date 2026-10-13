@@ -5,7 +5,7 @@
 **Open**
 - How the compiler knows a class is a system. The phase interfaces are SolEngine's, declared in a prelude, so the library needs a way to be told which interfaces mark one, such as an engine property naming them.
 - Whether the load-time check in SolEngine stays as a second line of defence for bytecode compiled elsewhere.
-- Whether this is worth a language change at all, when the load-time check already refuses the same modules.
+- Whether this is worth a language change at all, when the load-time check already refuses the same modules and [declaration positions](declaration-positions.md) would give it a `file:line` through the API.
 
 **Read**
 - [SolEngine 0109](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0109-a-dispatch-can-reach-no-script-state.md) — the rule, and the `const` holes that made it a refusal
