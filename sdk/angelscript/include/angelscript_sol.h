@@ -75,6 +75,23 @@ extern "C"
 	// funcdef member is not changed.
 #endif
 
+#ifdef AS_SOL_NO_SCRIPT_STATE
+	// Tells the engine what a module it builds may not hold. Both apply to
+	// source compiled after the call, and refuse it with an ordinary compile
+	// error at the declaration. Bytecode that is loaded is not checked.
+	//
+	// A script class implementing the named interface, directly or through a
+	// base class or another interface, may declare no members, inherited ones
+	// included. The name is the interface's, qualified with its namespace when
+	// it has one, as "ns::IName". Returns asINVALID_ARG for an empty name.
+	AS_API int asSolAddStatelessInterface(asIScriptEngine *engine, const char *name);
+
+	// With the rule on, a global variable must be const, and of a primitive,
+	// an enum or a value type registered as asOBJ_POD. A handle, a script
+	// object and a value type with behaviours are refused even when const.
+	AS_API int asSolSetConstantGlobalsOnly(asIScriptEngine *engine, bool on);
+#endif
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 	// Where a garbage collected object was created: the line executing in the
 	// innermost script function of the active context when the collector was

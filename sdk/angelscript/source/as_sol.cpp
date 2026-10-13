@@ -49,6 +49,7 @@
 #include "as_scriptnode.h"
 #include "as_context.h"
 #include "as_gc.h"
+#include "as_builder.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -134,6 +135,159 @@ AS_API int asSolGetGlobalVarDeclaredAt(const asIScriptModule *module, asUINT ind
 }
 
 #endif // AS_SOL_DECLARATION_POSITIONS
+
+#ifdef AS_SOL_NO_SCRIPT_STATE
+
+#ifndef AS_NO_COMPILER
+
+// The first interface named stateless that the type implements, or null
+static const asCString *asSolFindStatelessInterface(const asSSolNoScriptState &rules, asCObjectType *ot)
+{
+	for( asUINT n = 0; n < ot->interfaces.GetLength(); n++ )
+	{
+		asCObjectType *intf = ot->interfaces[n];
+		asCString name = intf->name;
+		if( intf->nameSpace && intf->nameSpace->name != "" )
+			name = intf->nameSpace->name + "::" + intf->name;
+
+		for( asUINT i = 0; i < rules.statelessInterfaces.GetLength(); i++ )
+			if( rules.statelessInterfaces[i] == name )
+				return &rules.statelessInterfaces[i];
+
+		// An interface may inherit a stateless one
+		const asCString *inherited = asSolFindStatelessInterface(rules, intf);
+		if( inherited )
+			return inherited;
+	}
+
+	return 0;
+}
+
+static bool asSolIsPlainValue(const asCDataType &dt)
+{
+	if( dt.IsObjectHandle() || dt.IsFuncdef() )
+		return false;
+	if( dt.IsPrimitive() || dt.IsEnumType() )
+		return true;
+
+	asCTypeInfo *ti = dt.GetTypeInfo();
+	return ti && (ti->flags & asOBJ_VALUE) && (ti->flags & asOBJ_POD) && !(ti->flags & asOBJ_SCRIPT_OBJECT);
+}
+
+void asCBuilder::SolCheckScriptState()
+{
+	const asSSolNoScriptState &rules = engine->solNoScriptState;
+
+	if( rules.statelessInterfaces.GetLength() )
+	{
+		for( asUINT n = 0; n < classDeclarations.GetLength(); n++ )
+		{
+			asCObjectType *ot = CastToObjectType(classDeclarations[n]->typeInfo);
+			if( ot == 0 )
+				continue;
+
+			const asCString *intf = asSolFindStatelessInterface(rules, ot);
+			if( intf )
+				SolCheckClassHoldsNoState(classDeclarations[n], intf->AddressOf());
+		}
+	}
+
+	if( rules.constantGlobalsOnly )
+	{
+		asCSymbolTableIterator<sGlobalVariableDescription> it = globVariables.List();
+		for( ; it; it++ )
+		{
+			sGlobalVariableDescription *gvar = *it;
+			if( gvar->isEnumValue )
+				continue;
+
+			if( gvar->datatype.IsReadOnly() && asSolIsPlainValue(gvar->datatype) )
+				continue;
+
+			asCString str;
+			str.Format("Global variable '%s' must be a constant of a primitive, an enum or a POD value type", (gvar->datatype.Format(gvar->ns) + " " + gvar->name).AddressOf());
+			WriteError(str, gvar->script, gvar->declaredAtNode);
+		}
+	}
+}
+
+void asCBuilder::SolCheckClassHoldsNoState(sClassDeclaration *decl, const char *interfaceName)
+{
+	asCObjectType *ot = CastToObjectType(decl->typeInfo);
+	for( asUINT n = 0; n < ot->properties.GetLength(); n++ )
+	{
+		asCObjectProperty *prop = ot->properties[n];
+
+		// Report at the member where it is declared in this build, or else at the class
+		asCScriptCode *file = decl->script;
+		asCScriptNode *node = decl->node;
+		SolFindPropertyNode(ot, prop->name, &file, &node);
+
+		asCString str;
+		str.Format("Class '%s' implements '%s' and may not declare member '%s'", ot->name.AddressOf(), interfaceName, (prop->type.Format(ot->nameSpace) + " " + prop->name).AddressOf());
+		WriteError(str, file, node);
+	}
+}
+
+bool asCBuilder::SolFindPropertyNode(asCObjectType *ot, const asCString &name, asCScriptCode **outFile, asCScriptNode **outNode)
+{
+	for( ; ot; ot = ot->derivedFrom )
+	{
+		sClassDeclaration *decl = 0;
+		for( asUINT n = 0; n < classDeclarations.GetLength(); n++ )
+			if( classDeclarations[n]->typeInfo == ot )
+				decl = classDeclarations[n];
+		if( decl == 0 || decl->node == 0 )
+			return false;
+
+		for( asCScriptNode *member = decl->node->firstChild; member; member = member->next )
+		{
+			if( member->nodeType != snDeclaration )
+				continue;
+
+			for( asCScriptNode *nd = member->firstChild; nd; nd = nd->next )
+			{
+				if( nd->nodeType == snIdentifier && decl->script->TokenEquals(nd->tokenPos, nd->tokenLength, name.AddressOf()) )
+				{
+					*outFile = decl->script;
+					*outNode = nd;
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+#endif // AS_NO_COMPILER
+
+extern "C"
+{
+
+AS_API int asSolAddStatelessInterface(asIScriptEngine *engine, const char *name)
+{
+	asCScriptEngine *e = reinterpret_cast<asCScriptEngine*>(engine);
+	if( e == 0 || name == 0 || name[0] == 0 )
+		return asINVALID_ARG;
+
+	e->solNoScriptState.statelessInterfaces.PushLast(asCString(name));
+	return asSUCCESS;
+}
+
+AS_API int asSolSetConstantGlobalsOnly(asIScriptEngine *engine, bool on)
+{
+	asCScriptEngine *e = reinterpret_cast<asCScriptEngine*>(engine);
+	if( e == 0 )
+		return asINVALID_ARG;
+
+	e->solNoScriptState.constantGlobalsOnly = on;
+	return asSUCCESS;
+}
+
+}
+
+#endif // AS_SOL_NO_SCRIPT_STATE
 
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 

@@ -42,6 +42,8 @@
 #define AS_SOL_H
 
 #include "as_config.h"
+#include "as_array.h"
+#include "as_string.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -65,6 +67,22 @@ void asSolSetDeclaredAt(asSSolDeclaredAt &out, asCScriptCode *file, asCScriptNod
 #endif
 
 #endif // AS_SOL_DECLARATION_POSITIONS
+
+#ifdef AS_SOL_NO_SCRIPT_STATE
+
+// What the application has told the engine a module may not hold
+struct asSSolNoScriptState
+{
+	asSSolNoScriptState() : constantGlobalsOnly(false) {}
+
+	// A class implementing an interface named here declares no members
+	asCArray<asCString> statelessInterfaces;
+
+	// A global variable is a constant of a primitive, an enum or a POD value type
+	bool constantGlobalsOnly;
+};
+
+#endif // AS_SOL_NO_SCRIPT_STATE
 
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 

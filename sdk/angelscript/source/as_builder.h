@@ -213,6 +213,12 @@ protected:
 	int                GetNamespaceAndNameFromNode(asCScriptNode *n, asCScriptCode *script, asSNameSpace *implicitNs, asSNameSpace *&outNs, asCString &outName, bool *isExplicitNs = 0);
 	int                RegisterMixinClass(asCScriptNode *node, asCScriptCode *file, asSNameSpace *ns);
 	sMixinClass       *GetMixinClass(const char *name, asSNameSpace *ns);
+
+#ifdef AS_SOL_NO_SCRIPT_STATE
+	void               SolCheckScriptState();
+	void               SolCheckClassHoldsNoState(sClassDeclaration *decl, const char *interfaceName);
+	bool               SolFindPropertyNode(asCObjectType *ot, const asCString &name, asCScriptCode **outFile, asCScriptNode **outNode);
+#endif
 	void               IncludePropertiesFromMixins(sClassDeclaration *decl);
 	void               IncludeMethodsFromMixins(sClassDeclaration *decl);
 	void               AddInterfaceToClass(sClassDeclaration *decl, asCScriptNode *errNode, asCObjectType *intf);

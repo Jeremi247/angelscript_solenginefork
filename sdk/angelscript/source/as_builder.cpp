@@ -334,6 +334,10 @@ int asCBuilder::Build()
 	// will be resolved, so they can be accessed properly in the functions
 	CompileGlobalVariables();
 
+#ifdef AS_SOL_NO_SCRIPT_STATE
+	SolCheckScriptState();
+#endif
+
 	// Finally the global functions and class methods
 	CompileFunctions();
 
@@ -394,6 +398,10 @@ int asCBuilder::CompileGlobalVar(const char *sectionName, const char *code, int 
 	RegisterGlobalVar(node, script, module->m_defaultNamespace);
 
 	CompileGlobalVariables();
+
+#ifdef AS_SOL_NO_SCRIPT_STATE
+	SolCheckScriptState();
+#endif
 
 	// It is possible that the global variable initialization included anonymous functions that must be compiled too
 	for( asUINT n = 0; n < functions.GetLength(); n++ )

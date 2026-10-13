@@ -53,6 +53,7 @@
 #include "as_gc.h"
 #include "as_tokenizer.h"
 #include "as_map.h"
+#include "as_sol.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -428,6 +429,10 @@ public:
 
 	// Garbage collector
 	asCGarbageCollector gc;
+
+#ifdef AS_SOL_NO_SCRIPT_STATE
+	asSSolNoScriptState solNoScriptState;
+#endif
 
 	// Dynamic groups
 	asCConfigGroup             defaultGroup;

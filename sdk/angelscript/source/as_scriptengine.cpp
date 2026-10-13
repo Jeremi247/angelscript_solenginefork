@@ -135,6 +135,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_DEEP_CONST
 		"AS_SOL_DEEP_CONST "
 #endif
+#ifdef AS_SOL_NO_SCRIPT_STATE
+		"AS_SOL_NO_SCRIPT_STATE "
+#endif
 
 	// Target system
 #ifdef AS_WIN

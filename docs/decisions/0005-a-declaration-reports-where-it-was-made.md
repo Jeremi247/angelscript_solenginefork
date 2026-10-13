@@ -1,6 +1,6 @@
 # 0005 — A declaration reports where it was made
 
-Scope: `AS_SOL_DECLARATION_POSITIONS`, the feature that lets SolEngine print its load-time refusals at a `file:line` ([SolEngine 0109](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0109-a-dispatch-can-reach-no-script-state.md)). Whether the compiler should refuse the same declarations itself is [a system class the compiler knows](../todo/P2/compiler-known-system-class.md).
+Scope: `AS_SOL_DECLARATION_POSITIONS`, the feature that lets SolEngine print its load-time refusals at a `file:line` ([SolEngine 0109](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0109-a-dispatch-can-reach-no-script-state.md)). Whether the compiler should refuse the same declarations itself is [0009](0009-a-module-can-be-told-to-hold-no-state.md)'s.
 
 ## The decision
 
