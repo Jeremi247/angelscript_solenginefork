@@ -490,7 +490,18 @@ void asCScriptFunction::DestroyInternal()
 	while( listPattern )
 	{
 		asSListPatternNode *n = listPattern->next;
+#ifdef AS_SOL_SIZED_FREE
+		// A node for a type was created as the derived class, and is freed with its size
+		if( listPattern->type == asLPT_TYPE )
+		{
+			asSListPatternDataTypeNode *typeNode = static_cast<asSListPatternDataTypeNode*>(listPattern);
+			asDELETE(typeNode, asSListPatternDataTypeNode);
+		}
+		else
+			asDELETE(listPattern, asSListPatternNode);
+#else
 		asDELETE(listPattern, asSListPatternNode);
+#endif
 		listPattern = n;
 	}
 

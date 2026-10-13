@@ -364,6 +364,106 @@ int asCCompiler::SolPrepareValueInoutCopy(asCExprContext *ctx, asCScriptNode *no
 
 #endif // AS_SOL_SAFE_VALUE_INOUT
 
+#ifdef AS_SOL_SIZED_FREE
+
+asSIZEDFREEFUNC_t userFreeSized = 0;
+
+void asCTypeInfo::SolDelete() const
+{
+	// Each class is told apart by the flags its creator gives it
+	size_t size = sizeof(asCTypeInfo);
+	if( flags & asOBJ_FUNCDEF )
+		size = sizeof(asCFuncdefType);
+	else if( flags & asOBJ_TYPEDEF )
+		size = sizeof(asCTypedefType);
+	else if( flags & asOBJ_ENUM )
+		size = sizeof(asCEnumType);
+	else if( flags & (asOBJ_VALUE | asOBJ_REF | asOBJ_LIST_PATTERN) )
+		size = sizeof(asCObjectType);
+
+	asCTypeInfo *self = const_cast<asCTypeInfo*>(this);
+	self->~asCTypeInfo();
+	asSolFree(self, size);
+}
+
+size_t asSolAllocSize(const asCObjectType *objType)
+{
+	// Padded as CallAlloc pads it
+	asUINT size = objType->size;
+	if( size & 0x3 )
+		size += 4 - (size & 0x3);
+	return size;
+}
+
+// The header keeps the block 16 byte aligned, as the allocator gave it
+static const size_t asSOL_SIZE_HEADER = 16;
+
+static void *asSolAllocWithSize(size_t size)
+{
+	asBYTE *mem = asNEWARRAY(asBYTE, size + asSOL_SIZE_HEADER);
+	if( mem == 0 )
+		return 0;
+	*reinterpret_cast<size_t*>(mem) = size;
+	return mem + asSOL_SIZE_HEADER;
+}
+
+static void asSolFreeWithSize(void *ptr)
+{
+	if( ptr == 0 )
+		return;
+	asBYTE *mem = reinterpret_cast<asBYTE*>(ptr) - asSOL_SIZE_HEADER;
+	asSolFree(mem, *reinterpret_cast<size_t*>(mem) + asSOL_SIZE_HEADER);
+}
+
+void *asSolAllocListBuffer(size_t size)
+{
+	return asSolAllocWithSize(size);
+}
+
+void asSolFreeListBuffer(void *buffer)
+{
+	asSolFreeWithSize(buffer);
+}
+
+void *asSolAllocMem(size_t size)
+{
+	return asSolAllocWithSize(size);
+}
+
+void asSolFreeMemUnsized(void *mem)
+{
+	asSolFreeWithSize(mem);
+}
+
+extern "C"
+{
+
+AS_API int asSolSetGlobalMemoryFunctions(asALLOCFUNC_t allocFunc, asSIZEDFREEFUNC_t freeFunc)
+{
+	if( allocFunc == 0 || freeFunc == 0 )
+		return asINVALID_ARG;
+
+	// Clean-up thread local memory first, as asSetGlobalMemoryFunctions does
+	asThreadCleanup();
+
+	userAlloc     = allocFunc;
+	userFreeSized = freeFunc;
+	return asSUCCESS;
+}
+
+AS_API void asSolFreeMem(void *mem, size_t size)
+{
+	if( mem == 0 )
+		return;
+	asASSERT( *reinterpret_cast<size_t*>(reinterpret_cast<asBYTE*>(mem) - asSOL_SIZE_HEADER) == size );
+	UNUSED_VAR(size);
+	asSolFreeWithSize(mem);
+}
+
+}
+
+#endif // AS_SOL_SIZED_FREE
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 
 void asSolGetScriptPosition(int &sectionIdx, int &position)

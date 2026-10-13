@@ -301,7 +301,9 @@ void asCContext::DetachEngine()
 	{
 		if( m_stackBlocks[n] )
 		{
-#ifndef WIP_16BYTE_ALIGN
+#if defined(AS_SOL_SIZED_FREE)
+			asDELETEARRAYSIZED(m_stackBlocks[n], asDWORD, m_stackBlockSize << n);
+#elif !defined(WIP_16BYTE_ALIGN)
 			asDELETEARRAY(m_stackBlocks[n]);
 #else
 			asDELETEARRAYALIGNED(m_stackBlocks[n]);
@@ -3223,7 +3225,11 @@ static const void *const dispatch_table[256] = {
 						m_regs.stackPointer      = l_sp;
 						m_regs.stackFramePointer = l_fp;
 
+#ifdef AS_SOL_SIZED_FREE
+						m_engine->CallFree(mem, objType);
+#else
 						m_engine->CallFree(mem);
+#endif
 						if( a ) *a = 0;
 
 						return;
@@ -3261,7 +3267,11 @@ static const void *const dispatch_table[256] = {
 					else if( objType->flags & asOBJ_LIST_PATTERN )
 						m_engine->DestroyList((asBYTE*)(asPWORD)*a, objType);
 
+#ifdef AS_SOL_SIZED_FREE
+					m_engine->CallFree((void*)(asPWORD)*a, objType);
+#else
 					m_engine->CallFree((void*)(asPWORD)*a);
+#endif
 				}
 
 				// Clear the variable
@@ -4675,7 +4685,9 @@ static const void *const dispatch_table[256] = {
 
 			asUINT size = asBC_DWORDARG(l_bc);
 			asBYTE **var = (asBYTE**)(l_fp - asBC_SWORDARG0(l_bc));
-#ifndef WIP_16BYTE_ALIGN
+#if defined(AS_SOL_SIZED_FREE)
+			*var = (asBYTE*)asSolAllocListBuffer(size);
+#elif !defined(WIP_16BYTE_ALIGN)
 			*var = asNEWARRAY(asBYTE, size);
 #else
 			*var = asNEWARRAYALIGNED(asBYTE, size, MAX_TYPE_ALIGNMENT);
@@ -5139,7 +5151,11 @@ void asCContext::CleanReturnObject()
 					m_engine->CallObjectMethod(m_regs.objectRegister, beh->destruct);
 
 				// Free the memory
+#ifdef AS_SOL_SIZED_FREE
+				m_engine->CallFree(m_regs.objectRegister, CastToObjectType(reinterpret_cast<asCTypeInfo*>(m_regs.objectType)));
+#else
 				m_engine->CallFree(m_regs.objectRegister);
+#endif
 				m_regs.objectRegister = 0;
 			}
 		}
@@ -5473,7 +5489,11 @@ void asCContext::CleanArgsOnStack()
 						m_engine->CallObjectMethod((void*)*(asPWORD*)&m_regs.stackPointer[offset], beh->destruct);
 
 					// Free the memory
+#ifdef AS_SOL_SIZED_FREE
+					m_engine->CallFree((void*)*(asPWORD*)&m_regs.stackPointer[offset], CastToObjectType(func->parameterTypes[n].GetTypeInfo()));
+#else
 					m_engine->CallFree((void*)*(asPWORD*)&m_regs.stackPointer[offset]);
+#endif
 				}
 				*(asPWORD*)&m_regs.stackPointer[offset] = 0;
 			}
@@ -5644,7 +5664,11 @@ bool asCContext::CleanStackFrame(bool catchException)
 								m_engine->DestroyList((asBYTE*)*(asPWORD*)&m_regs.stackFramePointer[-pos], CastToObjectType(m_currentFunction->scriptData->variables[n]->type.GetTypeInfo()));
 
 							// Free the memory
+#ifdef AS_SOL_SIZED_FREE
+							m_engine->CallFree((void*)*(asPWORD*)&m_regs.stackFramePointer[-pos], CastToObjectType(m_currentFunction->scriptData->variables[n]->type.GetTypeInfo()));
+#else
 							m_engine->CallFree((void*)*(asPWORD*)&m_regs.stackFramePointer[-pos]);
+#endif
 						}
 					}
 					*(asPWORD*)&m_regs.stackFramePointer[-pos] = 0;
@@ -5710,7 +5734,11 @@ bool asCContext::CleanStackFrame(bool catchException)
 						m_engine->CallObjectMethod((void*)*(asPWORD*)&m_regs.stackFramePointer[offset], beh->destruct);
 
 					// Free the memory
+#ifdef AS_SOL_SIZED_FREE
+					m_engine->CallFree((void*)*(asPWORD*)&m_regs.stackFramePointer[offset], CastToObjectType(m_currentFunction->parameterTypes[n].GetTypeInfo()));
+#else
 					m_engine->CallFree((void*)*(asPWORD*)&m_regs.stackFramePointer[offset]);
+#endif
 				}
 				*(asPWORD*)&m_regs.stackFramePointer[offset] = 0;
 			}
@@ -5989,7 +6017,11 @@ int asCContext::CallGeneric(asCScriptFunction *descr)
 				if( clean->op == 2 )
 					m_engine->CallObjectMethod(*addr, clean->ot->beh.destruct);
 
+#ifdef AS_SOL_SIZED_FREE
+				m_engine->CallFree(*addr, clean->ot);
+#else
 				m_engine->CallFree(*addr);
+#endif
 			}
 		}
 	}

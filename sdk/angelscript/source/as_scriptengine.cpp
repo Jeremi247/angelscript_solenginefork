@@ -141,6 +141,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_SAFE_VALUE_INOUT
 		"AS_SOL_SAFE_VALUE_INOUT "
 #endif
+#ifdef AS_SOL_SIZED_FREE
+		"AS_SOL_SIZED_FREE "
+#endif
 
 	// Target system
 #ifdef AS_WIN
@@ -5146,6 +5149,15 @@ void *asCScriptEngine::CallAlloc(const asCObjectType *type) const
 #endif
 }
 
+#ifdef AS_SOL_SIZED_FREE
+void asCScriptEngine::CallFree(void *obj, const asCObjectType *objType) const
+{
+	if( objType && (objType->flags & asOBJ_LIST_PATTERN) )
+		asSolFreeListBuffer(obj);
+	else
+		asSolFree(obj, asSolAllocSize(objType));
+}
+#else
 void asCScriptEngine::CallFree(void *obj) const
 {
 #ifndef WIP_16BYTE_ALIGN
@@ -5154,6 +5166,7 @@ void asCScriptEngine::CallFree(void *obj) const
 	userFreeAligned(obj);
 #endif
 }
+#endif
 
 // interface
 int asCScriptEngine::NotifyGarbageCollectorOfNewObject(void *obj, asITypeInfo *type)
@@ -5620,7 +5633,11 @@ void *asCScriptEngine::CreateScriptObject(const asITypeInfo *type)
 						ctx->HandleAppException();
 
 					// Free the memory
+#ifdef AS_SOL_SIZED_FREE
+					CallFree(ptr, objType);
+#else
 					CallFree(ptr);
+#endif
 					ptr = 0;
 				}
 #endif
@@ -5788,7 +5805,11 @@ void *asCScriptEngine::CreateScriptObjectCopy(void *origObj, const asITypeInfo *
 				ctx->HandleAppException();
 
 			// Free the memory
+#ifdef AS_SOL_SIZED_FREE
+			CallFree(newObj, ot);
+#else
 			CallFree(newObj);
+#endif
 			newObj = 0;
 		}
 #endif
@@ -5932,7 +5953,11 @@ void asCScriptEngine::ReleaseScriptObject(void *obj, const asITypeInfo *type)
 			// This is true if the object was created in the context, or with CreateScriptObject.
 
 			// Then free the memory
+#ifdef AS_SOL_SIZED_FREE
+			CallFree(obj, objType);
+#else
 			CallFree(obj);
+#endif
 		}
 	}
 }

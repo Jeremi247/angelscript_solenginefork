@@ -67,6 +67,30 @@ bool isAligned(const void* const pointer, asUINT alignment);
 
 #endif // WIP_16BYTE_ALIGN
 
+#ifdef AS_SOL_SIZED_FREE
+
+#ifdef WIP_16BYTE_ALIGN
+#error AS_SOL_SIZED_FREE does not support WIP_16BYTE_ALIGN
+#endif
+
+END_AS_NAMESPACE
+#include "../include/angelscript_sol.h"
+BEGIN_AS_NAMESPACE
+
+extern asSIZEDFREEFUNC_t userFreeSized;
+
+// Frees a block with the size it was allocated with, or with the unsized
+// free function if the application gave no sized one
+inline void asSolFree(void *ptr, size_t size)
+{
+	if( userFreeSized )
+		userFreeSized(ptr, size);
+	else
+		userFree(ptr);
+}
+
+#endif // AS_SOL_SIZED_FREE
+
 // We don't overload the new operator as that would affect the application as well
 
 #ifndef AS_DEBUG
@@ -105,6 +129,14 @@ bool isAligned(const void* const pointer, asUINT alignment);
 	#define asDELETEARRAYALIGNED(ptr) userFreeAligned(ptr)
 #endif
 
+#endif
+
+#ifdef AS_SOL_SIZED_FREE
+	// Every free must know the size it allocated, so the unsized forms are removed
+	#undef asDELETE
+	#undef asDELETEARRAY
+	#define asDELETE(ptr,x) {void *tmp = ptr; (ptr)->~x(); asSolFree(tmp, sizeof(x));}
+	#define asDELETEARRAYSIZED(ptr,x,cnt) asSolFree(ptr, sizeof(x)*(cnt))
 #endif
 
 END_AS_NAMESPACE

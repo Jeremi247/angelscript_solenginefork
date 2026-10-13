@@ -146,6 +146,10 @@ public:
 	// application or script objects and references coming from the script code
 	virtual int AddRefInternal();
 	virtual int ReleaseInternal();
+#ifdef AS_SOL_SIZED_FREE
+	// Destroys and frees the type with the size of the class it was created as
+	void SolDelete() const;
+#endif
 
 	virtual void DestroyInternal() {}
 

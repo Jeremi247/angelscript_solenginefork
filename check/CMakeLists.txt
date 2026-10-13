@@ -129,7 +129,8 @@ set(SolFeatures
     AS_SOL_GC_REPORTS_DONE
     AS_SOL_DEEP_CONST
     AS_SOL_NO_SCRIPT_STATE
-    AS_SOL_SAFE_VALUE_INOUT)
+    AS_SOL_SAFE_VALUE_INOUT
+    AS_SOL_SIZED_FREE)
 
 add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
 

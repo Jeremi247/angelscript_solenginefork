@@ -66,7 +66,11 @@ void asCTokenizer::FreeJumpTable()
 	for (asUINT n = 0; n < 256; n++)
 	{
 		if (keywordTable[n])
+#ifdef AS_SOL_SIZED_FREE
+			asDELETEARRAYSIZED(keywordTable[n], const sTokenWord*, 32);
+#else
 			asDELETEARRAY(keywordTable[n]);
+#endif
 	}
 	memset(keywordTable, 0, sizeof(keywordTable));
 }

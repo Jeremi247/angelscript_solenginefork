@@ -53,7 +53,9 @@ asCGlobalProperty::asCGlobalProperty()
 
 asCGlobalProperty::~asCGlobalProperty()
 { 
-#ifndef WIP_16BYTE_ALIGNED
+#if defined(AS_SOL_SIZED_FREE)
+	if( memoryAllocated ) { asDELETEARRAYSIZED(memory, asDWORD, type.GetSizeOnStackDWords()); }
+#elif !defined(WIP_16BYTE_ALIGNED)
 	if( memoryAllocated ) { asDELETEARRAY(memory); } 
 #else
 	if( memoryAllocated ) { asDELETEARRAYALIGNED(memory); } 

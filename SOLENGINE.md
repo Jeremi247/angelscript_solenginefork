@@ -20,6 +20,7 @@ Every commit on `sol/main` that changes a file under `sdk/`, oldest first, named
 | `const` reaches through a handle member | `AS_SOL_DEEP_CONST`. Changes the language | [0008](docs/decisions/0008-const-reaches-through-a-handle-member.md) |
 | A module can be told to hold no state | `AS_SOL_NO_SCRIPT_STATE`. Changes the language where the application asks | [0009](docs/decisions/0009-a-module-can-be-told-to-hold-no-state.md) |
 | A value type crosses as `&inout` safely | `AS_SOL_SAFE_VALUE_INOUT`. Accepts only what safe mode refused | [0010](docs/decisions/0010-a-value-type-crosses-as-inout-safely.md) |
+| A free is told the size | `AS_SOL_SIZED_FREE`. x64 MSVC only | [0011](docs/decisions/0011-a-free-is-told-the-size.md) |
 
 ## Releases
 

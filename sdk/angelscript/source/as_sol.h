@@ -93,6 +93,24 @@ bool asSolIsValueType(const asCDataType &dt);
 
 #endif // AS_SOL_SAFE_VALUE_INOUT
 
+#ifdef AS_SOL_SIZED_FREE
+
+class asCObjectType;
+
+// The size asCScriptEngine::CallAlloc allocates for the type
+size_t asSolAllocSize(const asCObjectType *objType);
+
+// A buffer for asBC_AllocMem, which keeps its own size in front of it as
+// nothing else knows it when the buffer is freed
+void  *asSolAllocListBuffer(size_t size);
+void   asSolFreeListBuffer(void *buffer);
+
+// What asAllocMem and asFreeMem hand out and take back, with the same header
+void  *asSolAllocMem(size_t size);
+void   asSolFreeMemUnsized(void *mem);
+
+#endif // AS_SOL_SIZED_FREE
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 
 // The line executing in the active context, in the innermost script function

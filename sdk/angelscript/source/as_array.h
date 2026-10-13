@@ -269,7 +269,11 @@ void asCArray<T>::Allocate(asUINT numElements, bool keepData)
 				array[n].~T();
 
 			if( array != reinterpret_cast<T*>(buf) )
+#ifdef AS_SOL_SIZED_FREE
+				asDELETEARRAYSIZED(array, T, maxLength);
+#else
 				asDELETEARRAY(array);
+#endif
 		}
 	}
 
@@ -330,7 +334,11 @@ void asCArray<T>::AllocateNoConstruct(asUINT numElements, bool keepData)
 				length = 0;
 
 			if( array != reinterpret_cast<T*>(buf) )
+#ifdef AS_SOL_SIZED_FREE
+				asDELETEARRAYSIZED(array, T, maxLength);
+#else
 				asDELETEARRAY(array);
+#endif
 		}
 	}
 

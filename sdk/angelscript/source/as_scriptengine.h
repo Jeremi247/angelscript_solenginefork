@@ -232,7 +232,13 @@ public:
 	int VerifyVarTypeNotInFunction(asCScriptFunction *func);
 
 	void *CallAlloc(const asCObjectType *objType) const;
+#ifdef AS_SOL_SIZED_FREE
+	// The memory must have been allocated with CallAlloc for the same type,
+	// or for a list pattern type, by asBC_AllocMem
+	void  CallFree(void *obj, const asCObjectType *objType) const;
+#else
 	void  CallFree(void *obj) const;
+#endif
 
 	void *CallGlobalFunctionRetPtr(int func) const;
 	void *CallGlobalFunctionRetPtr(int func, void *param1) const;

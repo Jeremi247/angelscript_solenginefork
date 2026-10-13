@@ -496,7 +496,11 @@ void asCModule::UninitializeGlobalProp(asCGlobalProperty *prop)
 				if (ot->beh.destruct)
 					m_engine->CallObjectMethod(*obj, ot->beh.destruct);
 
+#ifdef AS_SOL_SIZED_FREE
+				m_engine->CallFree(*obj, ot);
+#else
 				m_engine->CallFree(*obj);
+#endif
 			}
 
 			// Set the address to 0 as someone might try to access the variable afterwards

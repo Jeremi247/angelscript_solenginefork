@@ -131,7 +131,11 @@ asQWORD CallSystemFunctionNative(asCContext *context, asCScriptFunction *descr, 
 				memcpy(&allArgBuffer[dpos], *(void**)(args+spos), dt.GetSizeInMemoryBytes());
 
 				// Delete the original memory
+#ifdef AS_SOL_SIZED_FREE
+				engine->CallFree(*(char**)(args+spos), CastToObjectType(dt.GetTypeInfo()));
+#else
 				engine->CallFree(*(char**)(args+spos));
+#endif
 				spos += AS_PTR_SIZE;
 				asUINT dwords = dt.GetSizeInMemoryDWords();
 				asUINT qwords = (dwords >> 1) + (dwords & 1);

@@ -392,11 +392,18 @@ asCScriptObject::asCScriptObject(asCObjectType *ot, bool doInitialize)
 
 void asCScriptObject::Destruct()
 {
+#ifdef AS_SOL_SIZED_FREE
+	// The destructor may release the type, so take the size first
+	size_t size = asSolAllocSize(objType);
+#endif
+
 	// Call the destructor, which will also call the GCObject's destructor
 	this->~asCScriptObject();
 
 	// Free the memory
-#ifndef WIP_16BYTE_ALIGN
+#if defined(AS_SOL_SIZED_FREE)
+	asSolFree(this, size);
+#elif !defined(WIP_16BYTE_ALIGN)
 	userFree(this);
 #else
 	// Script object memory is allocated through asCScriptEngine::CallAlloc()
@@ -1100,7 +1107,11 @@ void asCScriptObject::FreeObject(void *ptr, asCObjectType *in_objType, asCScript
 		if( in_objType->beh.destruct )
 			engine->CallObjectMethod(ptr, in_objType->beh.destruct);
 
+#ifdef AS_SOL_SIZED_FREE
+		engine->CallFree(ptr, in_objType);
+#else
 		engine->CallFree(ptr);
+#endif
 	}
 }
 

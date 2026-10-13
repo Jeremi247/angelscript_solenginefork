@@ -47,6 +47,10 @@
 
 BEGIN_AS_NAMESPACE
 
+#ifdef AS_SOL_SIZED_FREE
+typedef void (*asSIZEDFREEFUNC_t)(void *, size_t);
+#endif
+
 #ifndef ANGELSCRIPT_DLL_MANUAL_IMPORT
 extern "C"
 {
@@ -99,6 +103,19 @@ extern "C"
 	// parameter, is passed by address. Any other must be a variable followed
 	// by property accesses, and is passed as a copy that is assigned back to
 	// it after the call. A const &inout takes a copy of any expression.
+#endif
+
+#ifdef AS_SOL_SIZED_FREE
+	// As asSetGlobalMemoryFunctions, but the free function is told the size the
+	// block was allocated with. Like it, this must be called before any engine
+	// is created. asSetGlobalMemoryFunctions and asResetGlobalMemoryFunctions
+	// return to an unsized free.
+	AS_API int  asSolSetGlobalMemoryFunctions(asALLOCFUNC_t allocFunc, asSIZEDFREEFUNC_t freeFunc);
+
+	// asAllocMem and asFreeMem still work, as each block they hand out keeps
+	// its own size in front of it. asSolFreeMem frees such a block too, and
+	// checks the size given against the one it kept.
+	AS_API void asSolFreeMem(void *mem, size_t size);
 #endif
 
 #ifdef AS_SOL_CYCLE_CREATION_SITE

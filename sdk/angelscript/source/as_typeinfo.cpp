@@ -97,7 +97,11 @@ int asCTypeInfo::Release() const
 		{
 			// If the engine is no longer set, then it has already been
 			// released and we must take care of the deletion ourselves
+#ifdef AS_SOL_SIZED_FREE
+			SolDelete();
+#else
 			asDELETE(const_cast<asCTypeInfo*>(this), asCTypeInfo);
+#endif
 		}
 	}
 
@@ -121,7 +125,11 @@ int asCTypeInfo::ReleaseInternal()
 		{
 			// If the engine is no longer set, then it has already been
 			// released and we must take care of the deletion ourselves
+#ifdef AS_SOL_SIZED_FREE
+			SolDelete();
+#else
 			asDELETE(const_cast<asCTypeInfo*>(this), asCTypeInfo);
+#endif
 		}
 	}
 

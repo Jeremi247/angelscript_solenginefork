@@ -105,7 +105,11 @@ asCString::~asCString()
 {
 	if( length > 11 && dynamic )
 	{
+#ifdef AS_SOL_SIZED_FREE
+		asDELETEARRAYSIZED(dynamic, char, length+1);
+#else
 		asDELETEARRAY(dynamic);
+#endif
 	}
 }
 
@@ -139,7 +143,12 @@ void asCString::Allocate(size_t len, bool keepData)
 	// of these options, and it turned out that the current choice is what best balanced
 	// the number of allocations against the size of the allocations.
 
+#ifdef AS_SOL_SIZED_FREE
+	// The buffer is freed with its size, so it always holds exactly length+1
+	if( len > 11 && len != length )
+#else
 	if( len > 11 && len > length )
+#endif
 	{
 		// Allocate a new dynamic buffer if the new one is larger than the old
 		char *buf = asNEWARRAY(char,len+1);
@@ -157,7 +166,11 @@ void asCString::Allocate(size_t len, bool keepData)
 
 		if( length > 11 )
 		{
+#ifdef AS_SOL_SIZED_FREE
+			asDELETEARRAYSIZED(dynamic, char, length+1);
+#else
 			asDELETEARRAY(dynamic);
+#endif
 		}
 
 		dynamic = buf;
@@ -170,7 +183,11 @@ void asCString::Allocate(size_t len, bool keepData)
 		{
 			memcpy(&local, buf, len);
 		}
+#ifdef AS_SOL_SIZED_FREE
+		asDELETEARRAYSIZED(buf, char, length+1);
+#else
 		asDELETEARRAY(buf);
+#endif
 	}
 
 	length = (int)len;
@@ -210,7 +227,11 @@ asCString &asCString::operator =(asCString &&str) noexcept
 	{
 		if( length > 11 && dynamic )
 		{
+#ifdef AS_SOL_SIZED_FREE
+			asDELETEARRAYSIZED(dynamic, char, length+1);
+#else
 			asDELETEARRAY(dynamic);
+#endif
 		}
 
 		if ( str.length <= 11 )

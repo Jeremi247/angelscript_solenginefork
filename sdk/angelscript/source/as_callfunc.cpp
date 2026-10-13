@@ -974,7 +974,11 @@ int CallSystemFunction(int id, asCContext *context)
 				if( clean->op == 2 )
 					engine->CallObjectMethod(*addr, clean->ot->beh.destruct);
 
+#ifdef AS_SOL_SIZED_FREE
+				engine->CallFree(*addr, clean->ot);
+#else
 				engine->CallFree(*addr);
+#endif
 			}
 		}
 	}

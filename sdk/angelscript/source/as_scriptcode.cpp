@@ -55,7 +55,11 @@ asCScriptCode::~asCScriptCode()
 {
 	if( !sharedCode && code ) 
 	{
+#ifdef AS_SOL_SIZED_FREE
+		asDELETEARRAYSIZED(code, char, codeLength);
+#else
 		asDELETEARRAY(code);
+#endif
 	}
 }
 
@@ -69,7 +73,11 @@ int asCScriptCode::SetCode(const char *in_name, const char *in_code, size_t in_l
 	if( !in_code) return asINVALID_ARG;
 	this->name = in_name ? in_name : "";
 	if( !sharedCode && code ) 
+#ifdef AS_SOL_SIZED_FREE
+		asDELETEARRAYSIZED(code, char, codeLength);
+#else
 		asDELETEARRAY(code);
+#endif
 
 	if( in_length == 0 )
 		in_length = strlen(in_code);

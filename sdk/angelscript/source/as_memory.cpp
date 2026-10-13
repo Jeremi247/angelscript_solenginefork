@@ -46,6 +46,7 @@
 #include "as_memory.h"
 #include "as_scriptnode.h"
 #include "as_bytecode.h"
+#include "as_sol.h"
 
 BEGIN_AS_NAMESPACE
 
@@ -149,6 +150,9 @@ int asSetGlobalMemoryFunctions(asALLOCFUNC_t allocFunc, asFREEFUNC_t freeFunc)
 
 	userAlloc = allocFunc;
 	userFree  = freeFunc;
+#ifdef AS_SOL_SIZED_FREE
+	userFreeSized = 0;
+#endif
 
 	return 0;
 }
@@ -163,6 +167,9 @@ int asResetGlobalMemoryFunctions()
 
 	userAlloc = malloc;
 	userFree  = free;
+#ifdef AS_SOL_SIZED_FREE
+	userFreeSized = 0;
+#endif
 
 	return 0;
 }
@@ -170,13 +177,21 @@ int asResetGlobalMemoryFunctions()
 // interface
 void *asAllocMem(size_t size)
 {
+#ifdef AS_SOL_SIZED_FREE
+	return asSolAllocMem(size);
+#else
 	return asNEWARRAY(asBYTE, size);
+#endif
 }
 
 // interface
 void asFreeMem(void *mem)
 {
+#ifdef AS_SOL_SIZED_FREE
+	asSolFreeMemUnsized(mem);
+#else
 	asDELETEARRAY(mem);
+#endif
 }
 
 } // extern "C"
@@ -199,7 +214,11 @@ void asCMemoryMgr::FreeUnusedMemory()
 
 	int n;
 	for( n = 0; n < (signed)scriptNodePool.GetLength(); n++ )
+#ifdef AS_SOL_SIZED_FREE
+		asSolFree(scriptNodePool[n], sizeof(asCScriptNode));
+#else
 		userFree(scriptNodePool[n]);
+#endif
 	scriptNodePool.Allocate(0, false);
 
 	LEAVECRITICALSECTION(cs);
@@ -208,7 +227,13 @@ void asCMemoryMgr::FreeUnusedMemory()
 	// compiling scripts simultaneously so this pool doesn't have 
 	// to be protected again.
 	for( n = 0; n < (signed)byteInstructionPool.GetLength(); n++ )
+#if defined(AS_SOL_SIZED_FREE) && defined(AS_NO_COMPILER)
+		asASSERT( false ); // Only the compiler fills the pool
+#elif defined(AS_SOL_SIZED_FREE)
+		asSolFree(byteInstructionPool[n], sizeof(asCByteInstruction));
+#else
 		userFree(byteInstructionPool[n]);
+#endif
 	byteInstructionPool.Allocate(0, false);
 }
 
