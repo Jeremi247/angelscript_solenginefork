@@ -1,6 +1,7 @@
 # Upstream's test_feature, built against the library as SolEngine builds it. Step 1 of
 # the release check in docs/testing.md; the four ways SolEngine's build differs from
-# upstream's CI are listed there, and each is reproduced below.
+# upstream's CI are listed there. Three are reproduced below; why the allocator is not
+# is written there too.
 #
 # Outside sdk/, so nothing here is vendored or conflicts with upstream
 # (docs/decisions/0003-a-commit-of-ours-keeps-upstreams-shape.md).
@@ -17,7 +18,7 @@ set(Sdk "${CMAKE_CURRENT_SOURCE_DIR}/../sdk")
 
 # --- SolEngine's root CMakeLists ------------------------------------------------------
 # C++20 for the library, and Debug and Development with SolEngine's flags. Shipping
-# differs from Development only in /Zi, and SolEngine's no-tools builds add
+# differs from Development only in debug information (/Zi, /DEBUG), and SolEngine's no-tools builds add
 # AS_NO_COMPILER, which the suite cannot run under (docs/testing.md).
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

@@ -32,6 +32,12 @@ $Build   = Join-Path $PSScriptRoot 'Build'
 # The suite reads and writes script files relative to where upstream's projects put it.
 $RunDir  = Join-Path $PSScriptRoot '..\sdk\tests\test_feature\bin' | Resolve-Path
 
+# What was tested, for the summary: a tag is cut only on a pass, so the pass has to
+# name the commit it is for.
+$Repo     = Join-Path $PSScriptRoot '..' | Resolve-Path
+$Commit   = git -C $Repo rev-parse HEAD
+$SdkDirty = git -C $Repo status --porcelain -- sdk
+
 $Results = @()
 
 foreach ($T in $Toolset) {
@@ -41,7 +47,12 @@ foreach ($T in $Toolset) {
     if ($T -eq 'ClangCL') { $ConfigureArgs += @('-T', 'ClangCL') }
 
     & cmake @ConfigureArgs
-    if ($LASTEXITCODE -ne 0) { throw "Configuring $T failed" }
+    if ($LASTEXITCODE -ne 0) {
+        foreach ($C in $Configuration) {
+            $Results += [pscustomobject]@{ Run = "$T-$C"; Result = 'CONFIGURE FAILED' }
+        }
+        continue
+    }
 
     foreach ($C in $Configuration) {
         $Name = "$T-$C"
@@ -84,6 +95,9 @@ foreach ($T in $Toolset) {
 }
 
 $Results | Format-Table -AutoSize | Out-String | Write-Host
+
+if ($SdkDirty) { Write-Host "At $Commit, with uncommitted changes under sdk/" -ForegroundColor Yellow }
+else           { Write-Host "At $Commit, sdk/ clean" }
 
 if ($Results | Where-Object { $_.Result -ne 'passed' }) { exit 1 }
 exit 0

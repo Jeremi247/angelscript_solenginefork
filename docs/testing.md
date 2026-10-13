@@ -16,13 +16,13 @@ A release is tagged only when all three pass.
 powershell -ExecutionPolicy Bypass -File check/Check.ps1
 ```
 
-Four runs: MSVC and clang-cl, each Debug and Development, through the Visual Studio 2022 generator as SolEngine's presets use it. `-Toolset` and `-Configuration` narrow it. Each run's output is `check/Build/<toolset>-<configuration>.log`, and the script exits non-zero if any run failed.
+Four runs: MSVC and clang-cl, each Debug and Development, through the Visual Studio 2022 generator as SolEngine's presets use it. `-Toolset` and `-Configuration` narrow it. Each run's output is `check/Build/<toolset>-<configuration>.log`, and the script exits non-zero if any run failed. The summary names the commit tested, and says whether `sdk/` had uncommitted changes.
 
-**A run passes when the suite exits 0 and the library reports `AS_NO_EXCEPTIONS`.** The second half is 0076's rule that a definition which stops firing has to be visible: without it, the tests that skip themselves under that definition would come back on, and the run would still pass.
+**A run passes when the suite exits 0 and the library reports `AS_NO_EXCEPTIONS`.** The second half is [SolEngine 0076](https://github.com/Jeremi247/SolEngine/blob/main/docs/decisions/0076-vendoring-a-third-party.md)'s rule that a definition which stops firing has to be visible: without it, the tests that skip themselves under that definition would come back on, and the run would still pass.
 
 **The library half is SolEngine's, the suite half is upstream's.** `check/CMakeLists.txt` compiles the library from the source list, definitions and `SolThirdPartyFlags` in SolEngine's `ThirdParty/AngelScript/CMakeLists.txt`, at C++20 and with SolEngine's Debug and Development flags. That list is kept in step with SolEngine's by hand. The suite's sources are read out of upstream's own `test_feature` CMakeLists, so a test upstream adds needs no edit here. The suite and the add-ons are compiled with RTTI and exceptions on, as upstream compiles them: they are not shipped, and clang-cl refuses their `try` and `dynamic_cast` without.
 
-**Development stands for Shipping too.** The two differ only in `/Zi`.
+**Development stands for Shipping too.** The two differ only in debug information, `/Zi` and `/DEBUG`.
 
 At `c9e74722`, all four runs pass 158 tests. Three are skipped by the suite itself: two because the library reports `AS_NO_EXCEPTIONS`, one for a missing glm. Under clang-cl a fourth, `WRAP_MFN_PR`, is skipped as it is for clang upstream.
 
@@ -35,7 +35,7 @@ None of it is SolEngine's build:
 | | SolEngine | Upstream's CI |
 |---|---|---|
 | Compiler | MSVC `cl.exe` and clang-cl | clang and clang-cl |
-| `AS_NO_EXCEPTIONS` | Always | Under clang only, set by upstream's CMakeLists |
+| `AS_NO_EXCEPTIONS` | Always | Under clang's GNU driver only, not clang-cl, set by upstream's CMakeLists |
 | RTTI and exceptions | Off (`/GR- /EHs-c-`) | Compiler default |
 | Allocation | Through `asSetGlobalMemoryFunctions`, a size header on every block | Through `asSetGlobalMemoryFunctions`, the suite's own `malloc` wrapper |
 
