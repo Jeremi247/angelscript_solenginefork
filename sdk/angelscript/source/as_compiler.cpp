@@ -11710,6 +11710,11 @@ int asCCompiler::CompileVariableAccess(const asCString &name, const asCString &s
 
 			// If the object reference is const, the property will also be const
 			ctx->type.dataType.MakeReadOnly(outFunc->IsReadOnly());
+#ifdef AS_SOL_DEEP_CONST
+			// The object a handle member refers to is const too
+			if( outFunc->IsReadOnly() && ctx->type.dataType.IsObjectHandle() && !ctx->type.dataType.IsFuncdef() )
+				ctx->type.dataType.MakeHandleToConst(true);
+#endif
 
 			return 0;
 		}
@@ -14848,6 +14853,11 @@ int asCCompiler::CompileExpressionPostOp(asCScriptNode *node, asCExprContext *ct
 					}
 
 					ctx->type.dataType.MakeReadOnly(isConst ? true : prop->type.IsReadOnly());
+#ifdef AS_SOL_DEEP_CONST
+					// The object a handle member refers to is const too
+					if( isConst && ctx->type.dataType.IsObjectHandle() && !ctx->type.dataType.IsFuncdef() )
+						ctx->type.dataType.MakeHandleToConst(true);
+#endif
 				}
 				else
 				{

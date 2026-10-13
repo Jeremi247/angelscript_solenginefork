@@ -126,7 +126,8 @@ target_compile_definitions(test_feature PRIVATE _CRT_SECURE_NO_WARNINGS)
 set(SolFeatures
     AS_SOL_DECLARATION_POSITIONS
     AS_SOL_CYCLE_CREATION_SITE
-    AS_SOL_GC_REPORTS_DONE)
+    AS_SOL_GC_REPORTS_DONE
+    AS_SOL_DEEP_CONST)
 
 add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
 

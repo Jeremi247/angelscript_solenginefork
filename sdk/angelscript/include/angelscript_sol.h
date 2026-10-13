@@ -69,6 +69,12 @@ extern "C"
 	// does. The call after a 0 starts over.
 #endif
 
+#ifdef AS_SOL_DEEP_CONST
+	// No new function. A handle member read through a const object, or
+	// through this in a const method, is a handle to a const object. A
+	// funcdef member is not changed.
+#endif
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 	// Where a garbage collected object was created: the line executing in the
 	// innermost script function of the active context when the collector was

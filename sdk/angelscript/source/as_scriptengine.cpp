@@ -132,6 +132,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_GC_REPORTS_DONE
 		"AS_SOL_GC_REPORTS_DONE "
 #endif
+#ifdef AS_SOL_DEEP_CONST
+		"AS_SOL_DEEP_CONST "
+#endif
 
 	// Target system
 #ifdef AS_WIN
