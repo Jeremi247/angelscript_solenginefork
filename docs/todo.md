@@ -5,7 +5,7 @@ Scope: the lists of work this fork knows it needs. Kept by SolEngine's [rules fo
 | List | Holds | Items |
 |---|---|---|
 | [P0](todo/P0.md) | What the first release cannot be cut without | 0 |
-| [P2](todo/P2.md) | What SolEngine has asked for, and nothing yet needs | 6 |
+| [P2](todo/P2.md) | What SolEngine has asked for, and nothing yet needs | 5 |
 
 **Priority is about dependency, not importance**, as in SolEngine.
 

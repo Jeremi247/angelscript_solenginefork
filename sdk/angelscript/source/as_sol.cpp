@@ -227,4 +227,66 @@ AS_API int asSolGetObjectCreatedAt(asIScriptEngine *engine, void *obj, const cha
 
 #endif // AS_SOL_CYCLE_CREATION_SITE
 
+#ifdef AS_SOL_GC_REPORTS_DONE
+
+// Anything that can give a step more to do changes one of these
+void asCGarbageCollector::SolGetSignature(asUINT *signature) const
+{
+	signature[0] = numDestroyed;
+	signature[1] = numDetected;
+	signature[2] = numAdded;
+	signature[3] = asUINT(gcOldObjects.GetLength());
+}
+
+void asCGarbageCollector::SolStartPass(int step)
+{
+	SolGetSignature(solPasses[step].start);
+}
+
+static bool asSolSameSignature(const asUINT *a, const asUINT *b)
+{
+	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3];
+}
+
+bool asCGarbageCollector::SolIsDone(bool doDestroy, bool doDetect)
+{
+	asUINT signature[4];
+	SolGetSignature(signature);
+
+	// A step that is back in its initial state has just ended a pass, or found its list empty
+	bool ended[3] = { destroyNewState == destroyGarbage_init,
+	                  destroyOldState == destroyGarbage_init,
+	                  detectState == clearCounters_init };
+
+	// A step this call does not run has nothing to do
+	bool runs[3] = { doDestroy, doDestroy, doDetect && gcOldObjects.GetLength() > 0 };
+
+	bool done = true;
+	for( int n = 0; n < 3; n++ )
+	{
+		if( !runs[n] )
+			continue;
+
+		asSSolPass &pass = solPasses[n];
+		if( ended[n] && asSolSameSignature(pass.start, signature) )
+		{
+			pass.hasQuiet = true;
+			for( int s = 0; s < 4; s++ )
+				pass.quiet[s] = signature[s];
+		}
+
+		if( !pass.hasQuiet || !asSolSameSignature(pass.quiet, signature) )
+			done = false;
+	}
+
+	// The next call starts over, as the application may have released objects since
+	if( done )
+		for( int n = 0; n < 3; n++ )
+			solPasses[n].hasQuiet = false;
+
+	return done;
+}
+
+#endif // AS_SOL_GC_REPORTS_DONE
+
 END_AS_NAMESPACE

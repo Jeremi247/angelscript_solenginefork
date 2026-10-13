@@ -61,6 +61,14 @@ extern "C"
 	AS_API int asSolGetGlobalVarDeclaredAt(const asIScriptModule *module, asUINT index, const char **scriptSection, int *row, int *col);
 #endif
 
+#ifdef AS_SOL_GC_REPORTS_DONE
+	// No new function. asIScriptEngine::GarbageCollect without asGC_FULL_CYCLE
+	// returns 0 once each incremental step it runs has ended a pass that found
+	// nothing to do, with nothing destroyed, detected, added or aged since,
+	// and stops iterating there. It returns 1 otherwise, as upstream always
+	// does. The call after a 0 starts over.
+#endif
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 	// Where a garbage collected object was created: the line executing in the
 	// innermost script function of the active context when the collector was

@@ -245,6 +245,16 @@ int asCGarbageCollector::GarbageCollect(asDWORD flags, asUINT iterations)
 				// Run another incremental step of the identification of cyclic references
 				if( doDetect && gcOldObjects.GetLength() > 0 )
 					IdentifyGarbageWithCyclicRefs();
+
+#ifdef AS_SOL_GC_REPORTS_DONE
+				// Return 0 to indicate that there is nothing left to do for now
+				if( SolIsDone(doDestroy, doDetect) )
+				{
+					isProcessing = false;
+					LEAVECRITICALSECTION(gcCollecting);
+					return 0;
+				}
+#endif
 			}
 		}
 
@@ -373,6 +383,10 @@ int asCGarbageCollector::DestroyNewGarbage()
 		{
 		case destroyGarbage_init:
 		{
+#ifdef AS_SOL_GC_REPORTS_DONE
+			SolStartPass(0);
+#endif
+
 			// If there are no objects to be freed then don't start
 			if( gcNewObjects.GetLength() == 0 )
 				return 0;
@@ -526,6 +540,10 @@ int asCGarbageCollector::DestroyOldGarbage()
 		{
 		case destroyGarbage_init:
 		{
+#ifdef AS_SOL_GC_REPORTS_DONE
+			SolStartPass(1);
+#endif
+
 			// If there are no objects to be freed then don't start
 			if( gcOldObjects.GetLength() == 0 )
 				return 0;
@@ -637,6 +655,9 @@ int asCGarbageCollector::IdentifyGarbageWithCyclicRefs()
 		switch( detectState )
 		{
 		case clearCounters_init:
+#ifdef AS_SOL_GC_REPORTS_DONE
+			SolStartPass(2);
+#endif
 			detectState = clearCounters_loop;
 		break;
 

@@ -129,6 +129,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 		"AS_SOL_CYCLE_CREATION_SITE "
 #endif
+#ifdef AS_SOL_GC_REPORTS_DONE
+		"AS_SOL_GC_REPORTS_DONE "
+#endif
 
 	// Target system
 #ifdef AS_WIN

@@ -69,6 +69,18 @@ public:
 	int    SolGetCreatedAt(void *obj, int *sectionIdx, int *createdAt);
 #endif
 
+#ifdef AS_SOL_GC_REPORTS_DONE
+	// What a pass of one of the three incremental steps has seen. A pass that
+	// ended without anything changing since it started found nothing to do.
+	struct asSSolPass
+	{
+		asSSolPass() : hasQuiet(false) { for( int n = 0; n < 4; n++ ) { start[n] = asUINT(-1); quiet[n] = asUINT(-1); } }
+		asUINT start[4];
+		asUINT quiet[4];
+		bool   hasQuiet;
+	};
+#endif
+
 	asCScriptEngine *engine;
 
 	// Callback for when circular reference are detected
@@ -112,6 +124,15 @@ protected:
 	int            DestroyNewGarbage();
 	int            DestroyOldGarbage();
 	int            IdentifyGarbageWithCyclicRefs();
+
+#ifdef AS_SOL_GC_REPORTS_DONE
+	// The incremental steps are the destruction of new garbage, of old garbage,
+	// and the detection of cycles, in that order
+	void           SolStartPass(int step);
+	bool           SolIsDone(bool doDestroy, bool doDetect);
+	void           SolGetSignature(asUINT *signature) const;
+	asSSolPass     solPasses[3];
+#endif
 	asSObjTypePair GetNewObjectAtIdx(int idx);
 	asSObjTypePair GetOldObjectAtIdx(int idx);
 	void           RemoveNewObjectAtIdx(int idx);
