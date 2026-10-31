@@ -171,8 +171,14 @@ protected:
 
 	// TODO: Allow use of SRWLOCK through configuration in as_config.h
 
+#ifdef AS_SOL_SRW_LOCK
+	// The fork for SolEngine takes the SRWLOCK. It is not recursive,
+	// so a thread must not take the lock again while it holds it.
+	SRWLOCK             lock;
+#else
 	CRITICAL_SECTION    writeLock;
 	HANDLE              readLocks;
+#endif
 };
 
 // This constant really should be a member of asCThreadReadWriteLock,

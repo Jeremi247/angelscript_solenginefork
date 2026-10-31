@@ -120,6 +120,18 @@ void asSolGetScriptPosition(int &sectionIdx, int &position);
 
 #endif // AS_SOL_CYCLE_CREATION_SITE
 
+#ifdef AS_SOL_SRW_LOCK
+// Called by asCThreadReadWriteLock before a take and after a release. With
+// asserts on, they assert that the thread does not already hold the lock.
+#if !defined(NDEBUG) && defined(AS_WINDOWS_THREADS)
+void asSolNoteLockTaken(const void *lock);
+void asSolNoteLockReleased(const void *lock);
+#else
+inline void asSolNoteLockTaken(const void *) {}
+inline void asSolNoteLockReleased(const void *) {}
+#endif
+#endif // AS_SOL_SRW_LOCK
+
 END_AS_NAMESPACE
 
 #endif

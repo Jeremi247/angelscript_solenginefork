@@ -15,6 +15,7 @@ Numbered on their own. A SolEngine record is named *SolEngine 0110* and linked b
 - [0009 — A module can be told to hold no state](0009-a-module-can-be-told-to-hold-no-state.md) — `AS_SOL_NO_SCRIPT_STATE`: a class implementing an interface the application names declares no members, and with the rule on a global is a constant of a primitive, enum or POD value type; compile errors at the declaration, source only, off until asked
 - [0010 — A value type crosses as `&inout` safely](0010-a-value-type-crosses-as-inout-safely.md) — `AS_SOL_SAFE_VALUE_INOUT`: with unsafe references off a value type may be `&inout`; locals, parameters and safe references go by address, a property chain as a copy assigned back after the call, anything else is refused
 - [0011 — A free is told the size](0011-a-free-is-told-the-size.md) — `AS_SOL_SIZED_FREE`: `asSolSetGlobalMemoryFunctions` takes a free that is told the block's size; every free passes it, the unsized forms are removed so a missed one fails to compile; list buffers and `asAllocMem` blocks keep a 16-byte header; x64 MSVC only
+- [0012 � The read-write lock is an SRW lock](0012-the-read-write-lock-is-an-srw-lock.md) � `AS_SOL_SRW_LOCK`: on Windows `asCThreadReadWriteLock` is an `SRWLOCK`, so an uncontended take makes no kernel call and readers are unbounded; not recursive, which the library already never needed, read from every take at `c9e74722`; with asserts on, a take by a thread already holding the lock asserts
 
 ## See also
 - [CLAUDE.md](../../CLAUDE.md) — where each record is read

@@ -39,6 +39,9 @@
 #include "as_config.h"
 #include "as_thread.h"
 #include "as_atomic.h"
+#ifdef AS_SOL_SRW_LOCK
+#include "as_sol.h"
+#endif
 
 BEGIN_AS_NAMESPACE
 
@@ -412,7 +415,9 @@ asCThreadReadWriteLock::asCThreadReadWriteLock()
 	asASSERT( r == 0 );
 	UNUSED_VAR(r);
 #elif defined AS_WINDOWS_THREADS
-#if defined(_MSC_VER) && (WINAPI_FAMILY & WINAPI_FAMILY_PHONE_APP)
+#if defined(AS_SOL_SRW_LOCK)
+	InitializeSRWLock(&lock);
+#elif defined(_MSC_VER) && (WINAPI_FAMILY & WINAPI_FAMILY_PHONE_APP)
 	// Only the Ex versions are available on Windows Store
 
 	// Create a semaphore to allow up to maxReaders simultaneous readers
@@ -431,8 +436,10 @@ asCThreadReadWriteLock::~asCThreadReadWriteLock()
 #if defined AS_POSIX_THREADS
 	pthread_rwlock_destroy(&lock);
 #elif defined AS_WINDOWS_THREADS
+#ifndef AS_SOL_SRW_LOCK
 	DeleteCriticalSection(&writeLock);
 	CloseHandle(readLocks);
+#endif
 #endif
 }
 
@@ -441,6 +448,10 @@ void asCThreadReadWriteLock::AcquireExclusive()
 #if defined AS_POSIX_THREADS
 	pthread_rwlock_wrlock(&lock);
 #elif defined AS_WINDOWS_THREADS
+#ifdef AS_SOL_SRW_LOCK
+	asSolNoteLockTaken(this);
+	AcquireSRWLockExclusive(&lock);
+#else
 	// Synchronize writers, so only one tries to lock out the readers
 	EnterCriticalSection(&writeLock);
 
@@ -455,6 +466,7 @@ void asCThreadReadWriteLock::AcquireExclusive()
 	// lock the readers when this writer releases them anyway.
 	LeaveCriticalSection(&writeLock);
 #endif
+#endif
 }
 
 void asCThreadReadWriteLock::ReleaseExclusive()
@@ -462,8 +474,13 @@ void asCThreadReadWriteLock::ReleaseExclusive()
 #if defined AS_POSIX_THREADS
 	pthread_rwlock_unlock(&lock);
 #elif defined AS_WINDOWS_THREADS
+#ifdef AS_SOL_SRW_LOCK
+	ReleaseSRWLockExclusive(&lock);
+	asSolNoteLockReleased(this);
+#else
 	// Release all readers at once
 	ReleaseSemaphore(readLocks, maxReaders, 0);
+#endif
 #endif
 }
 
@@ -472,8 +489,13 @@ void asCThreadReadWriteLock::AcquireShared()
 #if defined AS_POSIX_THREADS
 	pthread_rwlock_rdlock(&lock);
 #elif defined AS_WINDOWS_THREADS
+#ifdef AS_SOL_SRW_LOCK
+	asSolNoteLockTaken(this);
+	AcquireSRWLockShared(&lock);
+#else
 	// Lock a reader slot
 	WaitForSingleObjectEx(readLocks, INFINITE, FALSE);
+#endif
 #endif
 }
 
@@ -482,8 +504,13 @@ void asCThreadReadWriteLock::ReleaseShared()
 #if defined AS_POSIX_THREADS
 	pthread_rwlock_unlock(&lock);
 #elif defined AS_WINDOWS_THREADS
+#ifdef AS_SOL_SRW_LOCK
+	ReleaseSRWLockShared(&lock);
+	asSolNoteLockReleased(this);
+#else
 	// Release the reader slot
 	ReleaseSemaphore(readLocks, 1, 0);
+#endif
 #endif
 }
 

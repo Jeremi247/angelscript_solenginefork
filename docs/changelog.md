@@ -6,7 +6,15 @@ Scope: what changes for SolEngine between releases of this fork, and what it doe
 
 ## Unreleased
 
-Nothing yet.
+### Features
+
+| Definition | What it gives | What SolEngine does to use it | Record |
+|---|---|---|---|
+| `AS_SOL_SRW_LOCK` | On Windows the engine's lock and `asAcquireSharedLock`'s are SRW locks: an uncontended take makes no kernel call, and any number of threads hold it shared. Not recursive; with asserts on, a nested take asserts | Nothing beyond the definition. The application's memory functions must not call back into the library, as before | [0012](decisions/0012-the-read-write-lock-is-an-srw-lock.md) |
+
+### Release check
+
+- **`test_sol_features` builds with `AS_SOL_SRW_LOCK`** and runs its four tests in `check/Features/SrwLock.cpp`.
 
 ## sol-2.39.0-wip.2 — 2026-10-13
 

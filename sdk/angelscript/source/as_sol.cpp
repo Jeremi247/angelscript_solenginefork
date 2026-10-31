@@ -618,4 +618,42 @@ bool asCGarbageCollector::SolIsDone(bool doDestroy, bool doDetect)
 
 #endif // AS_SOL_GC_REPORTS_DONE
 
+#if defined(AS_SOL_SRW_LOCK) && !defined(NDEBUG) && defined(AS_WINDOWS_THREADS)
+
+// The read/write locks this thread holds. The library itself never holds
+// two at once. An add-on holding the application's lock across an engine
+// call holds two.
+static const asUINT solMaxHeldLocks = 8;
+static thread_local const void *solHeldLocks[solMaxHeldLocks];
+static thread_local asUINT solHeldLockCount = 0;
+
+void asSolNoteLockTaken(const void *lock)
+{
+	// An SRWLOCK is not recursive. A second shared take deadlocks once a
+	// writer waits between the two, and an exclusive take always does.
+	for( asUINT n = 0; n < solHeldLockCount; n++ )
+		asASSERT( solHeldLocks[n] != lock );
+
+	asASSERT( solHeldLockCount < solMaxHeldLocks );
+	if( solHeldLockCount < solMaxHeldLocks )
+		solHeldLocks[solHeldLockCount++] = lock;
+}
+
+void asSolNoteLockReleased(const void *lock)
+{
+	for( asUINT n = solHeldLockCount; n-- > 0; )
+	{
+		if( solHeldLocks[n] == lock )
+		{
+			solHeldLocks[n] = solHeldLocks[--solHeldLockCount];
+			return;
+		}
+	}
+
+	// Released by a thread that did not take it
+	asASSERT( false );
+}
+
+#endif // AS_SOL_SRW_LOCK
+
 END_AS_NAMESPACE

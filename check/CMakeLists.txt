@@ -130,7 +130,8 @@ set(SolFeatures
     AS_SOL_DEEP_CONST
     AS_SOL_NO_SCRIPT_STATE
     AS_SOL_SAFE_VALUE_INOUT
-    AS_SOL_SIZED_FREE)
+    AS_SOL_SIZED_FREE
+    AS_SOL_SRW_LOCK)
 
 add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
 

@@ -144,6 +144,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_SIZED_FREE
 		"AS_SOL_SIZED_FREE "
 #endif
+#ifdef AS_SOL_SRW_LOCK
+		"AS_SOL_SRW_LOCK "
+#endif
 
 	// Target system
 #ifdef AS_WIN

@@ -105,6 +105,15 @@ extern "C"
 	// it after the call. A const &inout takes a copy of any expression.
 #endif
 
+#ifdef AS_SOL_SRW_LOCK
+	// No new function. On Windows the library's read/write locks, the
+	// engine's and the one behind asAcquireSharedLock, are SRW locks: a take
+	// that finds the lock free makes no kernel call, and any number of
+	// threads may hold it shared. It is not recursive. A thread holding the
+	// lock must not take it again, shared or exclusive. With asserts on, the
+	// library asserts that it does not.
+#endif
+
 #ifdef AS_SOL_SIZED_FREE
 	// As asSetGlobalMemoryFunctions, but the free function is told the size the
 	// block was allocated with. Like it, this must be called before any engine
