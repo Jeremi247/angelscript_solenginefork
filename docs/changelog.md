@@ -6,6 +6,12 @@ Scope: what changes for SolEngine between releases of this fork, and what it doe
 
 ## Unreleased
 
+Nothing yet.
+
+## sol-2.39.0-wip.3 — 2026-10-31
+
+At upstream `c9e74722` (2026-10-05), unchanged since `sol-2.39.0-wip.2`. Adds one feature, off by default like the others ([0002](decisions/0002-an-engine-feature-is-off-by-default.md)). No file is added, so the library's source list is unchanged.
+
 ### Features
 
 | Definition | What it gives | What SolEngine does to use it | Record |
