@@ -131,7 +131,8 @@ set(SolFeatures
     AS_SOL_NO_SCRIPT_STATE
     AS_SOL_SAFE_VALUE_INOUT
     AS_SOL_SIZED_FREE
-    AS_SOL_SRW_LOCK)
+    AS_SOL_SRW_LOCK
+    AS_SOL_DOUBLE_NARROWING_WARNS)
 
 add_library(SolAngelScriptFeatures STATIC ${AngelScriptSources})
 

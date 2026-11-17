@@ -147,6 +147,9 @@ AS_API const char * asGetLibraryOptions()
 #ifdef AS_SOL_SRW_LOCK
 		"AS_SOL_SRW_LOCK "
 #endif
+#ifdef AS_SOL_DOUBLE_NARROWING_WARNS
+		"AS_SOL_DOUBLE_NARROWING_WARNS "
+#endif
 
 	// Target system
 #ifdef AS_WIN

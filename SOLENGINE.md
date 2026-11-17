@@ -22,6 +22,7 @@ Every commit on `sol/main` that changes a file under `sdk/`, oldest first, named
 | A value type crosses as `&inout` safely | `AS_SOL_SAFE_VALUE_INOUT`. Accepts only what safe mode refused | [0010](docs/decisions/0010-a-value-type-crosses-as-inout-safely.md) |
 | A free is told the size | `AS_SOL_SIZED_FREE`. x64 Windows only, MSVC and clang-cl | [0011](docs/decisions/0011-a-free-is-told-the-size.md) |
 | The read-write lock is an SRW lock | `AS_SOL_SRW_LOCK`. Windows only; POSIX keeps `pthread_rwlock_t` | [0012](docs/decisions/0012-the-read-write-lock-is-an-srw-lock.md) |
+| A double narrows to a float only when asked | `AS_SOL_DOUBLE_NARROWING_WARNS`. Changes what the compiler warns about, not what it accepts | [0013](docs/decisions/0013-a-double-narrows-to-a-float-only-when-asked.md) |
 
 ## Releases
 

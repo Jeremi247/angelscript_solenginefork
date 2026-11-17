@@ -132,6 +132,12 @@ inline void asSolNoteLockReleased(const void *) {}
 #endif
 #endif // AS_SOL_SRW_LOCK
 
+#ifdef AS_SOL_DOUBLE_NARROWING_WARNS
+// The warning for a double that is not a constant converted implicitly to a
+// float. A constant that does not convert exactly warns with TXT_NOT_EXACT.
+#define TXT_SOL_DOUBLE_NARROWED_TO_FLOAT "Double value narrowed in implicit conversion to float"
+#endif // AS_SOL_DOUBLE_NARROWING_WARNS
+
 END_AS_NAMESPACE
 
 #endif

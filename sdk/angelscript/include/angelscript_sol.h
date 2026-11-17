@@ -127,6 +127,13 @@ extern "C"
 	AS_API void asSolFreeMem(void *mem, size_t size);
 #endif
 
+#ifdef AS_SOL_DOUBLE_NARROWING_WARNS
+	// No new function. A double converted implicitly to a float is a compiler
+	// warning. A constant warns only when a float does not hold it exactly, as
+	// an integer constant already does. An explicit conversion, float(d), is
+	// not a warning.
+#endif
+
 #ifdef AS_SOL_CYCLE_CREATION_SITE
 	// Where a garbage collected object was created: the line executing in the
 	// innermost script function of the active context when the collector was

@@ -6,7 +6,15 @@ Scope: what changes for SolEngine between releases of this fork, and what it doe
 
 ## Unreleased
 
-Nothing yet.
+### Features
+
+| Definition | What it gives | What SolEngine does to use it | Record |
+|---|---|---|---|
+| `AS_SOL_DOUBLE_NARROWING_WARNS` | A `double` converted implicitly to a `float` is a compiler warning; a constant only when a float does not hold it exactly, as upstream's integer constants. `float(d)` is not. Overload costs are unchanged. **Changes what compiles** where warnings are errors | Nothing beyond the definition: with every warning an error, such a script is refused, and spells `float(d)` | [0013](decisions/0013-a-double-narrows-to-a-float-only-when-asked.md) |
+
+### Release check
+
+- **`test_sol_features` builds with `AS_SOL_DOUBLE_NARROWING_WARNS`** and runs its six tests in `check/Features/DoubleNarrowingWarns.cpp`.
 
 ## sol-2.39.0-wip.3 — 2026-10-31
 

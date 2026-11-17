@@ -7734,6 +7734,10 @@ asUINT asCCompiler::ImplicitConvPrimitiveToPrimitive(asCExprContext *ctx, const 
 				int offset = AllocateVariable(to, true);
 				ctx->bc.InstrW_W(asBC_dTOf, offset, ctx->type.stackOffset);
 				ctx->type.SetVariable(to, offset, true);
+#ifdef AS_SOL_DOUBLE_NARROWING_WARNS
+				if( convType != asIC_EXPLICIT_VAL_CAST )
+					Warning(TXT_SOL_DOUBLE_NARROWED_TO_FLOAT, node);
+#endif
 			}
 		}
 		else if( to.IsDoubleType() )
@@ -9740,6 +9744,13 @@ void asCCompiler::ImplicitConversionConstant(asCExprContext *from, const asCData
 		{
 			double ic = from->type.GetConstantD();
 			float fc = float(ic);
+
+#ifdef AS_SOL_DOUBLE_NARROWING_WARNS
+			if( double(fc) != ic )
+			{
+				if( convType != asIC_EXPLICIT_VAL_CAST && node ) Warning(TXT_NOT_EXACT, node);
+			}
+#endif
 
 			from->type.SetConstantF(asCDataType::CreatePrimitive(to.GetTokenType(), true), fc);
 		}
